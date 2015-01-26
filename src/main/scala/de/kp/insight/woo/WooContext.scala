@@ -28,11 +28,13 @@ import de.kp.insight.model._
 
 import scala.collection.mutable.{Buffer,HashMap}
 
-class WooContext(ctx:RequestContext) {
+class WooContext(ctx:RequestContext) extends ShopContext {
   
   private val (secret,key,url) = Configuration.woocommerce
   private val client = new WooClient(secret,key,url)
 
+  def getSite = key
+  
   def getCustomers(params:Map[String,String]):List[Customer] = {
     
     val start = new java.util.Date().getTime

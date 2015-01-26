@@ -25,7 +25,7 @@ import de.kp.insight.model._
 
 import scala.collection.mutable.{Buffer,HashMap}
 
-class ShopifyContext(ctx:RequestContext) {
+class ShopifyContext(ctx:RequestContext) extends ShopContext {
 
   /*
    * Determine Shopify access parameters from the configuration file 
@@ -41,7 +41,7 @@ class ShopifyContext(ctx:RequestContext) {
    * The 'apikey' is used as the 'site' parameter when indexing
    * Shopify data with Elasticsearch
    */
-  def getSite = apikey
+  def getSite:String = apikey
   /**
    * A public method to retrieve Shopify customers from the REST interface;
    * this method is used to synchronize the customer base

@@ -68,6 +68,8 @@ class CollectorService extends SparkService {
     val uid = parser.option[String](List("uid"),"uid","Unique job identifier")
     val job = parser.option[String](List("job"),"job","Unique job descriptor")
 
+    val shop = parser.option[String](List("shop"),"shop","Unique shop descriptor")
+
     val created_at_min = parser.option[String](List("min_date"),"created_at_min","Store data created after this date.")
     val created_at_max = parser.option[String](List("max_date"),"created_at_max","Store data created before this date.")
 
@@ -82,6 +84,9 @@ class CollectorService extends SparkService {
     
     if (job.hasValue == false)
       throw new Exception("Parameter 'job' is missing.")
+
+    if (shop.hasValue == false)
+      throw new Exception("Parameter 'shop' is missing.")
       
     if (created_at_min.hasValue == false)
       throw new Exception("Parameter 'min_date' is missing.")
@@ -100,6 +105,8 @@ class CollectorService extends SparkService {
 
     params += "uid" -> uid.value.get
     params += "job" -> job.value.get
+
+    params += "shop" -> shop.value.get
       
     params += "created_at_min" -> created_at_min.value.get
     params += "created_at_max" -> created_at_max.value.get

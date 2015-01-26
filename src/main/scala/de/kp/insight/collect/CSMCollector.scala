@@ -25,11 +25,10 @@ import de.kp.spark.core.Names
 import de.kp.insight._
 import de.kp.insight.model._
 
-import de.kp.insight.shopify.ShopifyContext
-
 class CSMCollector(ctx:RequestContext,params:Map[String,String]) extends BaseActor(ctx) {
 
-  private val shopifyContext = new ShopifyContext(ctx)
+  private val shop = params("shop")
+  private val shopContext = ShopFactory.get(ctx,shop)
 
   override def receive = {
 
@@ -45,7 +44,7 @@ class CSMCollector(ctx:RequestContext,params:Map[String,String]) extends BaseAct
         ctx.putLog("info",String.format("""[UID: %s] CSM collection started.""",uid))
             
         val start = new java.util.Date().getTime            
-        val customers = shopifyContext.getCustomers(params)
+        val customers = shopContext.getCustomers(params)
        
         ctx.putLog("info",String.format("""[UID: %s] Customer base loaded from store.""",uid))
 
