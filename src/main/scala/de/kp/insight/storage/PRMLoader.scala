@@ -29,6 +29,8 @@ import de.kp.spark.core.model._
 import de.kp.insight.RequestContext
 import de.kp.insight.parquet._
 
+import scala.collection.mutable.WrappedArray
+
 import org.elasticsearch.common.xcontent.{XContentBuilder,XContentFactory}
 
 /**
@@ -76,8 +78,8 @@ class PRMLoader(ctx:RequestContext,params:Map[String,String]) extends BaseLoader
           
       }).toMap
 
-      val antecedent = data("antecedent").asInstanceOf[Seq[Int]]
-      val consequent = data("consequent").asInstanceOf[Seq[Int]]
+      val antecedent = data("antecedent").asInstanceOf[WrappedArray[Int]].toSeq
+      val consequent = data("consequent").asInstanceOf[WrappedArray[Int]].toSeq
       
       val support = data("support").asInstanceOf[Int]
       val total = data("total").asInstanceOf[Long]

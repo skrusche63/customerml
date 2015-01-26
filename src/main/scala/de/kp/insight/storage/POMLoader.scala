@@ -29,6 +29,7 @@ import de.kp.spark.core.model._
 import de.kp.insight.RequestContext
 import de.kp.insight.parquet._
 
+import scala.collection.mutable.WrappedArray
 import org.elasticsearch.common.xcontent.{XContentBuilder,XContentFactory}
 
 class POMLoader(ctx:RequestContext,params:Map[String,String]) extends BaseLoader(ctx,params) {
@@ -90,10 +91,10 @@ class POMLoader(ctx:RequestContext,params:Map[String,String]) extends BaseLoader
       val total_stdev_timespan = data("total_stdev_timespan").asInstanceOf[Double]
       val total_variance_timespan = data("total_variance_timespan").asInstanceOf[Double]
  
-      val total_day_supp = data("total_day_supp").asInstanceOf[Seq[(Int,Int)]]
-      val total_time_supp = data("total_time_supp").asInstanceOf[Seq[(Int,Int)]]
+      val total_day_supp = data("total_day_supp").asInstanceOf[WrappedArray[(Int,Int)]].toSeq
+      val total_time_supp = data("total_time_supp").asInstanceOf[WrappedArray[(Int,Int)]].toSeq
       
-      val total_item_supp = data("total_item_supp").asInstanceOf[Seq[(Int,Int)]]
+      val total_item_supp = data("total_item_supp").asInstanceOf[WrappedArray[(Int,Int)]].toSeq
       val total_items = data("total_items").asInstanceOf[Long]
 
       val total_customers = data("total_customers").asInstanceOf[Long]

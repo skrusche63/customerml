@@ -47,16 +47,6 @@ case class ParquetCPF(
   rm_state:String,
   score:Double
 )
-/**
- * ParquetURM is a data structure that specifies customer-specific
- * product recommendations derived from association rules and the
- * last transaction of the customer
- */
-case class ParquetURM(
-  site:String,
-  user:String,
-  recommendations:Seq[(Seq[Int],Double)]
-)
 
 /**********************************************************************
  *      
