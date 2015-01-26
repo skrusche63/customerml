@@ -140,7 +140,18 @@ class WooMapper(ctx:RequestContext) {
    * product that describes a 'Product'
    */
   def extractProduct(site:String,product:WooProduct):Product = {
-    null    
+
+    val id = product.id.toString
+    val category = if (product.categories.isEmpty == false) product.categories(0) else "unused"
+    
+    val name = product.title
+    val vendor = "used"
+    
+    val tags = if (product.tags.isEmpty == false) product.tags.mkString(",") else ""
+    val images = product.images.map(x => Image(x.id.toString,x.position,x.src))
+    
+    Product(site,id,category,name,vendor,tags,images)
+        
   }
  
   private def toTimestamp(text:String):Long = {

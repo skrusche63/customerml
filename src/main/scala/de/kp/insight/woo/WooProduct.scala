@@ -27,6 +27,12 @@ case class WooProduct (
   @JsonProperty("id")
   id:Int,
    
+  @JsonProperty("description")
+  description:String,
+  
+  @JsonProperty("created_at")
+  created_at:String,
+    
   @JsonProperty("title")
   title:String,
    
@@ -35,46 +41,51 @@ case class WooProduct (
    
   @JsonProperty("price")
   price:String,
+  
+  @JsonProperty("tags")
+  tags:List[String],
    
-  @JsonProperty("regular_price")
-  regular_price:String,
-   
-  @JsonProperty("sale_price")
-  sale_price:String,
-
-  @JsonProperty("created_at")
-  created_at:String,
-
-  @JsonProperty("updated_at")
-  updated_at:String,
-
-  @JsonProperty("stock_quantity")
-  stock_quantity:Int,
-
-  @JsonProperty("rating_count")
-  rating_count:Int,
-
-  @JsonProperty("total_sales")
-  total_sales:Int,
-
-  @JsonProperty("in_stock")
-  in_stock:Boolean,
-
-  @JsonProperty("average_rating")
-  average_rating:String,
-
-  @JsonProperty("cross_sell_ids")
-  cross_sell_ids:List[Int],
-
-  @JsonProperty("related_ids")
-  related_ids:List[Int],
-
-  @JsonProperty("upsell_ids")
-  upsell_ids:List[Int],
-
+  @JsonProperty("categories")
+  categories:List[String],
+  
+  @JsonProperty("images")
+  images:List[WooImage]
+  
   /*
-   * Flags that are actually not supported
+   * Fields that are actually not evaluated 
+   * 
+   * @JsonProperty("regular_price")
+   * regular_price:String,
    *
+   * @JsonProperty("sale_price")
+   * sale_price:String,
+  *
+   * @JsonProperty("updated_at")
+   * updated_at:String,
+   * 
+   * @JsonProperty("stock_quantity")
+   * stock_quantity:Int,
+   *
+   * @JsonProperty("rating_count")
+   * rating_count:Int, 
+   *
+   * @JsonProperty("total_sales")
+   * total_sales:Int, 
+   *
+   * @JsonProperty("in_stock")
+   * in_stock:Boolean,
+   *
+   * @JsonProperty("average_rating")
+   * average_rating:String,
+   * 
+   * @JsonProperty("cross_sell_ids")
+   * cross_sell_ids:List[Int], 
+   *
+   * @JsonProperty("related_ids")
+   * related_ids:List[Int],
+   *
+   * @JsonProperty("upsell_ids")
+   * upsell_ids:List[Int],
    * 
    * @JsonProperty("shipping_required")
    * shipping_required:Boolean,
@@ -115,22 +126,11 @@ case class WooProduct (
    * @JsonProperty("sold_individually")
    * sold_individually:Boolean,
    *   
-   */
-  
-  @JsonProperty("shipping_taxable")
-  shipping_taxable:Boolean,
-  
-  @JsonProperty("images")
-  images:List[WooImage],
-  /*
-   * Fields that are actually not supported
-   *
+   * @JsonProperty("shipping_taxable")
+   * shipping_taxable:Boolean,
    * 
    * @JsonProperty("variations")
    * variations:List[Any],
-   * 
-   * @JsonProperty("categories")
-   * categories:List[String],
    * 
    * @JsonProperty("permalink")
    * permalink:String,
@@ -141,14 +141,11 @@ case class WooProduct (
    * @JsonProperty("download_limit")
    * download_limit:Int,
    * 
-   * @JsonProperty("description")
-   * description:String,
+   * @JsonProperty("short_description")
+   * short_description:String,
    * 
    * @JsonProperty("price_html")
    * price_html:String,
-   * 
-   * @JsonProperty("short_description")
-   * short_description:String,
    * 
    * @JsonProperty("purchase_note")
    * purchase_note:String,
@@ -183,19 +180,15 @@ case class WooProduct (
    * @JsonProperty("shipping_class_id")
    * shipping_class_id:String,
    *   
+   * @JsonProperty("tax_class")
+   * tax_class:String,
+   *
+   * @JsonProperty("tax_status")
+   * tax_status:String,
+   *
+   * @JsonProperty("status")
+   * status:String
    */
-  
-  @JsonProperty("tags")
-  tags:List[String],
-  
-  @JsonProperty("tax_class")
-  tax_class:String,
-  
-  @JsonProperty("tax_status")
-  tax_status:String,
-  
-  @JsonProperty("status")
-  status:String
   
 )
 
