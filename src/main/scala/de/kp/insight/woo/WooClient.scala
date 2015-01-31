@@ -40,7 +40,7 @@ import scala.collection.JavaConversions._
 
 private case class Pair(key:String,value:String)
 
-class WooClient( val url:String,val key:String,val secret:String) {
+class WooClient(val url:String,val key:String,val secret:String) {
 
   private val LOG = LoggerFactory.getLogger(classOf[WooClient])
 
