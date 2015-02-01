@@ -99,6 +99,15 @@ object Configuration extends CoreConf {
     
   }
   
+  def magento():String = {
+    
+    val cfg = config.getConfig("magento")
+    
+    val endpoint = cfg.getString("endpoint")
+    endpoint
+    
+  }
+  
   def shopify():(String,String,String) = {
   
     val cfg = config.getConfig("shopify")
