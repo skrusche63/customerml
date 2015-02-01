@@ -21,17 +21,49 @@ package de.kp.insight.big
 import org.codehaus.jackson.annotate.JsonProperty
 import com.fasterxml.jackson.annotation.{JsonIgnoreProperties, JsonIgnore}
 
-/**
- * Specification of the REST access to shipping
- * addressses associated with a certain order
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class BigShippingAddresses(
+case class BigCategory(
+
+  @JsonProperty("id")
+  id:Int,
+
+  @JsonProperty("parent_id")
+  parent_id:Int,
+
+  @JsonProperty("name")
+  name:String,
+
+  @JsonProperty("description")
+  description:String,
+
+  @JsonProperty("sort_order")
+  sort_order:Int,
+
+  @JsonProperty("page_title")
+  page_title:String,
+
+  @JsonProperty("meta_keywords")
+  meta_keywords:String,
+
+  @JsonProperty("meta_description")
+  meta_description:String,
+
+  @JsonProperty("layout_file")
+  layout_file:String,
+
+  @JsonProperty("image_file")
+  image_file:String,
+
+  @JsonProperty("is_visible")
+  is_visible:Boolean,
+
+  @JsonProperty("search_keywords")
+  search_keywords:String,
 
   @JsonProperty("url")
   url:String,
 
-  @JsonProperty("resource")
-  resource:String
+  @JsonProperty("parent_category_list")
+  parent_category_list:List[Int]
 
 )

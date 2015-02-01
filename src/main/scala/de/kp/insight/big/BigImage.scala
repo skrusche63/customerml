@@ -21,17 +21,21 @@ package de.kp.insight.big
 import org.codehaus.jackson.annotate.JsonProperty
 import com.fasterxml.jackson.annotation.{JsonIgnoreProperties, JsonIgnore}
 
-/**
- * Specification of the REST access to coupons
- * associated with a certain order
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class BigCoupons(
+case class BigImage(
 
-  @JsonProperty("url")
-  url:String,
+  @JsonProperty("id")
+  id:Int,
 
-  @JsonProperty("resource")
-  resource:String
+  @JsonProperty("zoom_url")
+  zoom_url:String,
 
+  @JsonProperty("thumbnail_url")
+  thumbnail_url:String,
+
+  @JsonProperty("standard_url")
+  standard_url:String,
+
+  @JsonProperty("tiny_url")
+  tiny_url:String
 )

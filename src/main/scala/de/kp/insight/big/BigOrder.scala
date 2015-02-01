@@ -226,5 +226,5 @@ case class BigOrder(
   coupon_discount:String,
 
   @JsonProperty("products")
-  products:BigProducts
+  products:BigReference
 )
