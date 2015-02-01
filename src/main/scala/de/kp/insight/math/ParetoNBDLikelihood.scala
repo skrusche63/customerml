@@ -20,7 +20,7 @@ package de.kp.insight.math
 
 import org.apache.commons.math3.special.Gamma
 
-object ParetoNBDLikelihood {
+object ParetoNBDLikelihood extends Serializable {
   
   def apply(r:Double,alpha:Double,s:Double,beta:Double,x:Double,tx:Double,T:Double):Double = {
   		
