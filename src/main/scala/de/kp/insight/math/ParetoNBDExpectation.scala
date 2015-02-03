@@ -18,6 +18,10 @@ package de.kp.insight.math
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * Pareto/NBD Expectation denotes the predicted number of transactions in the 
+ * period (T, T+t) for an individual with observed behavior (x,tx,T)
+ */
 object ParetoNBDExpectation extends Serializable {
  
   def apply(r:Double,alpha:Double,s:Double,beta:Double,x:Double,tx:Double,T:Double, t:Double):Double = {

@@ -82,9 +82,9 @@ class PredictorService(val appName:String) extends SparkService {
     if (job.hasValue == false)
       throw new Exception("Parameter 'job' is missing.")
   
-    val jobs = List("RFM")
+    val jobs = List("NBD","RFM")
     if (jobs.contains(job.value.get) == false)
-      throw new Exception("Job parameter must be one of [RFM].")
+      throw new Exception("Job parameter must be one of [NBD RFM].")
  
     /* Collect parameters */
     val params = HashMap.empty[String,String]
@@ -106,7 +106,7 @@ class PredictorService(val appName:String) extends SparkService {
      * Create Elasticsearch database and register 
      * the respective task in the task database
      */
-    createESIndex(params)
+    createESIndexes(params)
     registerESTask(params)
     
   }
@@ -139,16 +139,21 @@ class PredictorService(val appName:String) extends SparkService {
 
   }
 
-  private def createESIndex(params:Map[String,String]) {
+  private def createESIndexes(params:Map[String,String]) {
     
     /*
      * Create search index (if not already present)
      * 
      * The 'rfm' index (mapping) specifies an RFM forecast database
+     * 
+     * The 'nbd' index (mapping) specifies a Pareto/NBD forecast database
      */
 
     if (ctx.createIndex("forecasts","rfm","RFM_F") == false)
       throw new Exception("Index creation for 'forecasts/rfm' has been stopped due to an internal error.")
+
+    if (ctx.createIndex("forecasts","nbd","NBD") == false)
+      throw new Exception("Index creation for 'forecasts/nbd' has been stopped due to an internal error.")
     
   }
   

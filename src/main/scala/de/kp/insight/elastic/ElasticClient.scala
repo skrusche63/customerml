@@ -250,6 +250,13 @@ class ElasticClient extends Serializable {
         create(index,mapping,builder)
        
       } 
+      
+      else if (topic == "NBD") {
+
+        val builder = new EsParetoNBDBuilder().createBuilder(mapping)
+        create(index,mapping,builder)
+       
+      } 
        
       /**********************************************************************
        * 

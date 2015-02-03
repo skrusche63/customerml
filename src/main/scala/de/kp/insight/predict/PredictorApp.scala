@@ -77,6 +77,8 @@ object PredictorApp extends PredictorService("Predictor") {
         val job = params("job")        
         val loader = job match {
           
+          case "NBD" => context.actorOf(Props(new NBDPredictor(ctx,params))) 
+          
           case "RFM" => context.actorOf(Props(new RFMPredictor(ctx,params))) 
           
           case _ => throw new Exception("Wrong job descriptor.")
