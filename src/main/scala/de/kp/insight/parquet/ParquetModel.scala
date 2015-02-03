@@ -54,6 +54,23 @@ case class ParquetCPF(
  * 
  *********************************************************************/
 /**
+ * ParquetCAR is a data structure that specifies the user item 
+ * engagement, and also integrates contextual information
+ */
+case class ParquetCAR(
+  site:String,
+  user:String,
+
+  today:Long,
+  
+  active_item:Int,
+  other_items:Seq[Int],
+  
+  recency:Double,
+  location:Int  
+)
+
+/**
  * ParquetDPS is a data structure that specifies a discount, price 
  * and shipping sensitivity table
  */

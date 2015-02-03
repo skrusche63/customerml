@@ -25,8 +25,8 @@ import org.joda.time.DateTime
 import de.kp.spark.core.Names
 
 import de.kp.insight.model._
+import de.kp.insight.parquet._
 
-import de.kp.insight.preference.TFIDF
 import de.kp.insight.RequestContext
 
 import de.kp.insight.geoip.{CountryUtil,LocationFinder}
@@ -53,7 +53,7 @@ class CARPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
      */
     val ctype = sc.broadcast(customer)
 
-    val ds = orders.map(x => (x.site,x.user,x.ip_address,x.timestamp,x.group,x.amount,x.discount,x.shipping,x.items))
+    val ds = orders.map(x => (x.site,x.user,x.ip_address,x.timestamp,x.items))
     val filteredDS = (if (customer == 0) {
       /*
        * This customer type indicates that ALL customer types
@@ -70,40 +70,105 @@ class CARPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
       val parquetCST = readCST(uid).filter(x => x._2 == ctype.value)      
       ds.map{
         
-        case(site,user,ip_address,timestamp,group,amount,discount,shipping,items) => 
-          ((site,user),(ip_address,timestamp,group,amount,discount,shipping,items))
+        case(site,user,ip_address,timestamp,items) => 
+          ((site,user),(ip_address,timestamp,items))
       
       }.join(parquetCST).map{
         
-        case((site,user),((ip_address,timestamp,group,amount,discount,shipping,items),rfm_type)) => 
-          (site,user,ip_address,timestamp,group,amount,discount,shipping,items)
+        case((site,user),((ip_address,timestamp,items),rfm_type)) => 
+          (site,user,ip_address,timestamp,items)
       }
       
     })     
-    
-    val table = filteredDS.groupBy(x => (x._1,x._2)).map(x => {    
-      /*
-       * Reduce to transaction data and sort with respect to timestamp
-       */
-      val trans = x._2.map(v => (v._3,v._4,v._5,v._6,v._7,v._8,v._9)).toSeq.sortBy(v => v._2)
+    /*
+     * STEP #2: Build the features associated with the Context-Aware recommendation
+     * approach from every customer's transaction data 
+     */
+    val table = filteredDS.groupBy(x => (x._1,x._2)).flatMap(p => {    
+
+      val (site,user) = p._1
+      val trans = p._2.map{case(site,user,ip_address,timestamp,items) => (ip_address,timestamp,items)}
       
-      /* 
-       * 1) (country, city) of the customer who made the purchase;
-       *    this feature is introduced as a numerical feature
-       */
-      val locations = trans.map(_._1).map(ip => {
+      val geolookup = trans.map{case(ip_address,timestamp,items) => (ip_address,timestamp)}.map{case(ip_address,timestamp) => {
         
-        val location = LocationFinder.locate(ip)
+        val location = LocationFinder.locate(ip_address)
         
         val code = if (location.countrycode == "") "--" else location.countrycode
         val name = if (location.countryname == "") "N/A" else location.countryname
         
-        CountryUtil.getIndex(code,name)
+        (timestamp,CountryUtil.getIndex(code,name))
+        
+      }}.toMap
+      
+      /*
+       * Compute time ordered list of purchased items and associated items 
+       * (in the same transaction); for each item, we are interested in all
+       * the items that have been purchased together 
+       */
+      val items = trans.flatMap{
+        case(ip_address,timestamp,items) => {
+          
+          val iids = items.map(_.item)
+          iids.map{case (iid) => (iid,timestamp,iids)}}
+      
+      }.groupBy{case(iid,timestamp,iids) => iid}
+      /*
+       * In order to gather contextual information for a certain (active) item,
+       * we compare the two latest customer transactions, where the respective
+       * item was bought
+       */
+      items.map(x => {
+        
+        /*
+         * The active item is a categorical feature; this implies
+         * that the respective CARLearner must set the value to 1
+         */
+        val active_item = x._1
+        /*
+         * Determine distint set of items that have been purchased
+         * together with the active item; these data are used as a 
+         * categorical set, and therefore the value must be set to 
+         * 1 / N by the CARLearner
+         */
+        val other_items = x._2.flatMap(_._3).toSeq.distinct
+        /*
+         * Determine the recency of the last purchase of the active
+         * item. The time elapsed from the last transaction since
+         * now (today) is an indicator of the attractivity of the
+         * active item. 
+         * 
+         * The recency is used as a numerical context variable
+         */
+        val timestamps = x._2.map(_._2).toSeq.sorted
+       
+        val latest = timestamps.last
+        val today = new DateTime().getMillis()
+        
+        val recency = ((today - latest) / DAY).toDouble
+        /*
+         * From the timestamps, we are able to determine the 
+         * geo location of the respective transaction; for 
+         * the context, we determine the location with the
+         * highest frequency with respect to customers country
+         */       
+        val location = timestamps.map(geolookup(_))
+                         // Compute location count
+                         .groupBy(v => v).map(v => (v._1,v._2.size))
+                         // Determine location with highest cont
+                         .toSeq.sortBy(_._2).last._1
+        
+        ParquetCAR(site,user,today,active_item,other_items,recency,location)
         
       })
-      
+    
     })
-
-    // TODO
+    /* 
+     * The RDD is implicitly converted to a SchemaRDD by createSchemaRDD, 
+     * allowing it to be stored using Parquet. 
+     */
+    val store = String.format("""%s/%s/%s/1""",ctx.getBase,name,uid)         
+    table.saveAsParquetFile(store)
+  
   }
+
 }

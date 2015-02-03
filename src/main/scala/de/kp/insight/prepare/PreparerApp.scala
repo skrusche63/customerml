@@ -104,6 +104,8 @@ object PreparerApp extends PreparerService("Preparer") {
         val job = msg.data("job")        
         val preparer = job match {
           
+          case "CAR" => context.actorOf(Props(new CARPreparer(ctx,orders))) 
+          
           case "CDA" => context.actorOf(Props(new CDAPreparer(ctx,orders))) 
           
           case "CHA" => context.actorOf(Props(new CHAPreparer(ctx,orders))) 
