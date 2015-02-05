@@ -67,7 +67,9 @@ case class ParquetCAR(
   other_items:Seq[Int],
   
   recency:Double,
-  location:Int  
+  location:Int,
+  
+  target:Double
 )
 
 /**
@@ -346,6 +348,22 @@ case class ParquetCLS(
   loyalty:Int,
   rfm_type:Int
 )
+
+/**
+ * ParquetUCol is a data structure to specify the relationship
+ * between a certain user and the respective column ix
+ */
+case class ParquetUCol(site:String,user:String,row:Long)
+/**
+ * ParquetICol is a data structure to specify the relationship
+ * between a certain item and the respective column ix
+ */
+case class ParquetICol(item:Int,col:Long)
+/**
+ * ParquetPoint is a data structure to specify the CAR-specific
+ * point format
+ */
+case class ParquetPoint(row:Long,col:Long,cat:String,value:Double)
 
 /**********************************************************************
  *      

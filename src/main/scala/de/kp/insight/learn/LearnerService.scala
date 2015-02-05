@@ -82,9 +82,9 @@ class LearnerService(val appName:String) extends SparkService {
     if (job.hasValue == false)
       throw new Exception("Parameter 'job' is missing.")
   
-    val jobs = List("CDA","CHA","CPA","CPR","CPS","CSA","PRM")
+    val jobs = List("CAR", "CDA","CHA","CPA","CPR","CPS","CSA","PRM")
     if (jobs.contains(job.value.get) == false)
-      throw new Exception("Job parameter must be one of [CDA, CHA, CPA, CPR, CPS, CSA, PRM].")
+      throw new Exception("Job parameter must be one of [CAR CDA, CHA, CPA, CPR, CPS, CSA, PRM].")
  
     /* Collect parameters */
     val params = HashMap.empty[String,String]

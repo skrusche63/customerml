@@ -85,6 +85,8 @@ object LearnerApp extends LearnerService("Learner") {
         val job = params("job")        
         val builder = job match {
           
+          case "CAR" => context.actorOf(Props(new CARLearner(ctx,params))) 
+          
           case "CDA" => context.actorOf(Props(new SAELearner(ctx,params))) 
           
           case "CHA" => context.actorOf(Props(new SAELearner(ctx,params))) 
