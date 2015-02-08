@@ -21,7 +21,8 @@ package de.kp.insight.model
 import org.json4s._
 import org.json4s.native.Serialization
 import org.json4s.native.Serialization.{read,write}
-import de.kp.spark.core.model._
+
+import de.kp.spark.core.model.{BaseStatus,BaseMessages,BaseSerializer}
 import de.kp.insight.shopify.ShopifyProduct
 
 case class ActorInfo(
@@ -347,13 +348,6 @@ case class Order(
 case class Orders(items:List[Order])
 
 object ResponseStatus extends BaseStatus
-
-object Sources {
-  
-  val ELASTIC:String = "ELASTIC"
-    
-}
-
 
 object Serializer extends BaseSerializer {
   def serializeActorsStatus(statuses:ActorsStatus):String = write(statuses) 

@@ -41,20 +41,27 @@ object Configuration extends CoreConf {
     (duration,retries,timeout)
     
   }
- 
-  override def cassandra:Map[String,String] = {
-   
-    val cfg = config.getConfig("cassandra")
-    val conf = Map(
-      "spark.cassandra.connection.host" -> cfg.getString("spark.cassandra.connection.host")
-    )                          
+  
+  override def cassandra:Map[String,String] = null
+
+  override def elastic:HConf = {
+  
+    val cfg = config.getConfig("elastic")
+    val conf = new HConf()                          
+
+    conf.set("es.nodes",cfg.getString("es.nodes"))
+    conf.set("es.port",cfg.getString("es.port"))
 
     conf
-     
+    
   }
 
-  override def elastic:HConf = null
-  
+  override def hbase:Map[String,String] = null
+ 
+  override def mongo:HConf = null
+
+  override def mysql:(String,String,String,String) = null
+   
   def heartbeat:(Int,Int) = {
   
     val cfg = config.getConfig("actor")
@@ -84,18 +91,6 @@ object Configuration extends CoreConf {
   
   override def input:List[String] = null
  
-  override def mongo:HConf = {
-   
-    val cfg = config.getConfig("mongo")
-    val conf = new HConf()                          
-
-    conf.set("mongo.input.uri",cfg.getString("mongo.input.uri"))
-    conf
-     
-  }
-
-  override def mysql:(String,String,String,String) = null
-  
   override def output:List[String] = null
   
   override def redis:(String,String) = {

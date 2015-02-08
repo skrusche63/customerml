@@ -21,7 +21,7 @@ package de.kp.insight.predict
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 
-import org.apache.spark.mllib.regression._
+import org.apache.spark.mllib.regression
 import org.apache.spark.mllib.linalg.{Vector,Vectors}
 
 import org.joda.time.DateTime
@@ -63,12 +63,12 @@ class RFMPredictor(ctx:RequestContext,params:Map[String,String]) extends BasePre
      * customer segment for a certain timestamp
      */
     val monetary = dataset.map(x => (x._1,x._2.map(_._3).sum))    
-    val mset = monetary.map{case (timestamp,label) => LabeledPoint(label,Vectors.dense(timestamp))}     
+    val mset = monetary.map{case (timestamp,label) => regression.LabeledPoint(label,Vectors.dense(timestamp))}     
     /*
      * Build the mean recency for a certain customer type
      */
     val recency = dataset.map(x => (x._1, x._2.map(_._4).sum.toDouble / x._2.size))    
-    val rset = recency.map{case (timestamp,label) => LabeledPoint(label,Vectors.dense(timestamp))}     
+    val rset = recency.map{case (timestamp,label) => regression.LabeledPoint(label,Vectors.dense(timestamp))}     
     
     /*
      * Sum up the purchase frequency of erevy individual customer of the 
@@ -76,7 +76,7 @@ class RFMPredictor(ctx:RequestContext,params:Map[String,String]) extends BasePre
      * this customer segment for a certain timestamp
      */
     val frequency = dataset.map(x => (x._1,x._2.map(_._5).sum))    
-    val fset = frequency.map{case (timestamp,label) => LabeledPoint(label,Vectors.dense(timestamp))} 
+    val fset = frequency.map{case (timestamp,label) => regression.LabeledPoint(label,Vectors.dense(timestamp))} 
     
     /*
      * STEP #3: Build models and use either request or default parameters
@@ -141,9 +141,9 @@ class RFMPredictor(ctx:RequestContext,params:Map[String,String]) extends BasePre
     
   }
   
-  private def buildModel(trainset:RDD[LabeledPoint],iterations:Int,lambda:Double):(LinearRegressionModel,Double) = {
+  private def buildModel(trainset:RDD[regression.LabeledPoint],iterations:Int,lambda:Double):(regression.LinearRegressionModel,Double) = {
 
-    val model = LinearRegressionWithSGD.train(trainset,iterations,lambda)
+    val model = regression.LinearRegressionWithSGD.train(trainset,iterations,lambda)
     val predictions = model.predict(trainset.map(_.features))   
     
     val loss = predictions.zip(trainset.map(_.label)).map{case(prediction,label) => {
