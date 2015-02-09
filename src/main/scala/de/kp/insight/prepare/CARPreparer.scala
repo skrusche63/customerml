@@ -289,7 +289,7 @@ class CARPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
      
       val store4 = String.format("""%s/%s/%s/4""",ctx.getBase,name,uid)    
       
-      val table4 = rows.flatMap{case(block,row) => block.map(e => ParquetPoint(row,e.col,e.cat,e.value))}
+      val table4 = rows.flatMap{case(block,row) => block.map(e => ParquetDPT(row,e.col,e.cat,e.value))}
       table4.saveAsParquetFile(store4)
 
   }

@@ -22,6 +22,7 @@ import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 
 import de.kp.insight.parquet._
+import scala.collection.mutable.Buffer
 
 object TFIDF extends Serializable {
   /**
@@ -29,7 +30,7 @@ object TFIDF extends Serializable {
    * preference with an algorithm that is similar to TF-IDF from text 
    * mining
    */
-  def computeCDA(dataset:RDD[(String,String,Int)],daytime:String):RDD[ParquetCTA] = {
+  def computeCDA(dataset:RDD[(String,String,Int)],daytime:String):RDD[ParquetIPT] = {
     
     val sc = dataset.sparkContext
     /*
@@ -105,7 +106,7 @@ object TFIDF extends Serializable {
      * dataset. This is done with respect to the subsequent vector
      * based processing of the customer daytime affinity
      */
-    tdf.join(indexed_idf).map(x => {
+    val tf_idf = tdf.join(indexed_idf).map(x => {
       
       val item = x._1
       val ((site,user,itdf),(iidf,pos)) = x._2
@@ -115,51 +116,46 @@ object TFIDF extends Serializable {
        */
       (site,user,item,pos,itdf * iidf)
       
-    }).zipWithIndex.map(x => {
+    })
+    /*
+     * Next, we need to build labeled rows from the TF-IDF dataset;
+     * a row is equivalent to (site,user)
+     */
+    tf_idf.groupBy(x => (x._1,x._2)).map(x => {
       
-      val row = x._2
-      val (site,user,item,col,value) = x._1
-
-      val label = if (daytime == "day") {
-        /*
-         * We distinguish the days of a week into working days (A)
-         * and weekend, and use the specific categorization as label
-         */
-        (if (item < 6) "A" else "B")
-        
-      } else {
-        /*
-         * We distinguish the hour of the week into 4 hour periods
-         * and label these periods from A to F
-         */
-        if (item < 4) "A"
-        else if (4 <= item && item < 8) "B"
-        else if (8 <= item && item < 12) "C"
-        else if (12 <= item && item < 16) "D"
-        else if (16 <= item && item < 20) "E"
-        else "F"
-          
+      val (site,user) = x._1
+      /*
+       * Clustering requires a labeled feature vector; the 'label', 
+       * however, is not used by CustomerML, therefore we assign a
+       * dummy label, 'lbl', here 
+       */
+      val vector = x._2.map{case(site,user,item,col,value) => (item,col,"lbl",value)}      
+      
+      (site,user,vector)
+      
+    }).zipWithIndex.flatMap{case((site,user,vector),row) => {
+      
+      vector.map{case(item,col,label,value) =>
+        ParquetIPT(
+          site,
+          user,  
+          item,
+          row,
+          col,
+          label,
+          value
+        )      
       }
       
-      ParquetCTA(
-        site,
-        user,  
-        item,
-        row,
-        col,
-        label,
-        value
-      )
-      
-    })
-    
+    }}
+
   }
 
   /**
    * This method computes the user item preference with an algorithm
    * that is similar to TF-IDF from text mining
    */
-  def computeCPA(dataset:RDD[(String,String,Int,Int,String)]):RDD[ParquetCPA] = {
+  def computeCPA(dataset:RDD[(String,String,Int,Int,String)]):RDD[ParquetIPT] = {
     
     val sc = dataset.sparkContext
     /*
@@ -253,7 +249,7 @@ object TFIDF extends Serializable {
      * subsequent vector based processing of the customer product
      * affinity
      */
-    tdf.join(indexed_idf).map(x => {
+    val tf_idf = tdf.join(indexed_idf).map(x => {
       
       val item = x._1
       val ((site,user,itdf,category),(iidf,pos)) = x._2
@@ -263,29 +259,37 @@ object TFIDF extends Serializable {
        */
       (site,user,item,pos,itdf * iidf,category)
       
-    }).zipWithIndex.map(x => {
-      
-      val row = x._2
-      val (site,user,item,col,value,label) = x._1
-
-      ParquetCPA(
-        site,
-        user,  
-        item,
-        row,
-        col,
-        label,
-        value
-      )
-      
     })
-  
+    
+    tf_idf.groupBy(x => (x._1,x._2)).map(x => {
+      
+      val (site,user) = x._1
+      val vector = x._2.map{case(site,user,item,col,value,label) => (item,col,label,value)} 
+      
+      (site,user,vector)
+      
+    }).zipWithIndex.flatMap{case((site,user,vector),row) => {
+      
+      vector.map{case(item,col,label,value) =>
+        ParquetIPT(
+          site,
+          user,  
+          item,
+          row,
+          col,
+          label,
+          value
+        )      
+      }
+      
+    }}
+
   }
    /**
    * This method computes the user timespan preference with an algorithm
    * that is similar to TF-IDF from text mining
    */
-  def computeCSA(dataset:RDD[(String,String,Int,Int,String)]):RDD[ParquetCTA] = {
+  def computeCSA(dataset:RDD[(String,String,Int,Int,String)]):RDD[ParquetIPT] = {
     
     val sc = dataset.sparkContext
     /*
@@ -379,7 +383,7 @@ object TFIDF extends Serializable {
      * subsequent vector based processing of the customer product
      * affinity
      */
-    tdf.join(indexed_idf).map(x => {
+    val tf_idf = tdf.join(indexed_idf).map(x => {
       
       val item = x._1
       val ((site,user,itdf,sval),(iidf,pos)) = x._2
@@ -389,22 +393,30 @@ object TFIDF extends Serializable {
        */
       (site,user,item,pos,itdf * iidf,sval)
       
-    }).zipWithIndex.map(x => {
-      
-      val row = x._2
-      val (site,user,item,col,value,label) = x._1
-
-      ParquetCTA(
-        site,
-        user,  
-        item,
-        row,
-        col,
-        label,
-        value
-      )
-      
     })
-  
+    
+    tf_idf.groupBy(x => (x._1,x._2)).map(x => {
+      
+      val (site,user) = x._1
+      val vector = x._2.map{case(site,user,item,col,value,label) => (item,col,label,value)} 
+      
+      (site,user,vector)
+      
+    }).zipWithIndex.flatMap{case((site,user,vector),row) => {
+      
+      vector.map{case(item,col,label,value) =>
+        ParquetIPT(
+          site,
+          user,  
+          item,
+          row,
+          col,
+          label,
+          value
+        )      
+      }
+      
+    }}
+
   } 
 }
