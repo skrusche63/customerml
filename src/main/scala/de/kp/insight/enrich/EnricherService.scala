@@ -63,45 +63,59 @@ class EnricherService(val appName:String) extends SparkService {
       preUsage = Some("Version %s. Copyright (c) 2015, %s.".format("1.0","Dr. Krusche & Partner PartG"))
     )
 
-    val site = parser.option[String](List("key"),"key","Unique application key")
-    
-    val uid = parser.option[String](List("uid"),"uid","Unique job identifier")
+    val site = parser.option[String](List("key"),"key","Unique application key")    
+    val uid = parser.option[String](List("uid"),"uid","Unique preparation identifier")
+
+    val name = parser.option[String](List("name"),"name","Unique preparation designator")
     val job = parser.option[String](List("job"),"job","Unique job descriptor")
     
     val customer = parser.option[Int](List("customer"),"customer","Customer type.")
 
     parser.parse(args)
-    
-    /* Validate parameters */
-    if (site.hasValue == false)
-      throw new Exception("Parameter 'key' is missing.")
+     
+    /* Validate & collect parameters */
+    val params = HashMap.empty[String,String]
+    params += "timestamp" -> new DateTime().getMillis().toString
 
-    if (uid.hasValue == false)
-      throw new Exception("Parameter 'uid' is missing.")
+    site.value match {      
+      case None => parser.usage("Parameter 'key' is missing.")
+      case Some(value) => params += "site" -> value
+    }
     
-    if (job.hasValue == false)
-      throw new Exception("Parameter 'job' is missing.")
-  
+    uid.value match {      
+      case None => parser.usage("Parameter 'uid' is missing.")
+      case Some(value) => params += "uid" -> value
+    }
+    
+    name.value match {      
+      case None => parser.usage("Parameter 'name' is missing.")
+      case Some(value) => params += "name" -> value
+    }
+
     val jobs = List(
         /* customer centric enrichment jobs */
         "CCS","CDA","CHA","CPA","CPF","CPR","CSA",
         /* product centric enrichment jobs */
         "PCR,","PPS"
     )
-    
-    if (jobs.contains(job.value.get) == false)
-      throw new Exception("Job parameter must be one of [CCS, CDA, CHA, CPA, CPF, CPR, CSA, PRC, PPS].")
- 
-    /* Collect parameters */
-    val params = HashMap.empty[String,String]
-     
-    params += "site" -> site.value.get
-     
-    params += "uid" -> uid.value.get
-    params += "job" -> job.value.get
-    
-    params += "customer" -> customer.value.getOrElse(0).toString
-    params += "timestamp" -> new DateTime().getMillis.toString
+    job.value match {
+      
+      case None => parser.usage("Parameter 'job' is missing.")
+      case Some(value) => {
+        
+        if (jobs.contains(job.value.get) == false)
+          parser.usage("Job parameter must be one of [CCS, CDA, CHA, CPA, CPF, CPR, CSA, PRC, PPS].")
+
+        params += "job" -> value
+        
+      }
+
+    }
+
+    customer.value match {      
+      case None => params += "customer" -> 0.toString
+      case Some(value) => params += "customer" -> value.toString
+    }
 
     params.toMap
     

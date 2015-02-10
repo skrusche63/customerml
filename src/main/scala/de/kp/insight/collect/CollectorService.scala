@@ -74,44 +74,50 @@ class CollectorService extends SparkService {
     val created_at_max = parser.option[String](List("max_date"),"created_at_max","Store data created before this date.")
 
     parser.parse(args)
-    
-    /* Validate parameters */
-    if (site.hasValue == false)
-      throw new Exception("Parameter 'key' is missing.")
-
-    if (uid.hasValue == false)
-      throw new Exception("Parameter 'uid' is missing.")
-    
-    if (job.hasValue == false)
-      throw new Exception("Parameter 'job' is missing.")
-
-    if (shop.hasValue == false)
-      throw new Exception("Parameter 'shop' is missing.")
       
-    if (created_at_min.hasValue == false)
-      throw new Exception("Parameter 'min_date' is missing.")
-      
-    if (created_at_max.hasValue == false)
-      throw new Exception("Parameter 'max_date' is missing.")
-  
-    val jobs = List("ALL","CSM","ORD","PRD")
-    if (jobs.contains(job.value.get) == false)
-      throw new Exception("Job parameter must be one of [ALL, CSM, ORD, PRD].")
- 
-    /* Collect parameters */
+    /* Validate & collect parameters */
     val params = HashMap.empty[String,String]
-     
-    params += "site" -> site.value.get
+    params += "timestamp" -> new DateTime().getMillis().toString
 
-    params += "uid" -> uid.value.get
-    params += "job" -> job.value.get
-
-    params += "shop" -> shop.value.get
-      
-    params += "created_at_min" -> created_at_min.value.get
-    params += "created_at_max" -> created_at_max.value.get
+    site.value match {      
+      case None => parser.usage("Parameter 'key' is missing.")
+      case Some(value) => params += "site" -> value
+    }
     
-    params += "timestamp" -> new DateTime().getMillis.toString
+    uid.value match {      
+      case None => parser.usage("Parameter 'uid' is missing.")
+      case Some(value) => params += "uid" -> value
+    }
+    
+    shop.value match {      
+      case None => parser.usage("Parameter 'shop' is missing.")
+      case Some(value) => params += "shop" -> value
+    }
+    
+    val jobs = List("ALL","CSM","ORD","PRD")
+    job.value match {
+      
+      case None => parser.usage("Parameter 'job' is missing.")
+      case Some(value) => {
+        
+        if (jobs.contains(job.value.get) == false)
+          parser.usage("Job parameter must be one of [ALL, CSM, ORD, PRD].")
+
+        params += "job" -> value
+        
+      }
+
+    }
+    
+    created_at_min.value match {      
+      case None => parser.usage("Parameter 'created_at_min' is missing.")
+      case Some(value) => params += "created_at_min" -> value
+    }
+     
+    created_at_max.value match {      
+      case None => parser.usage("Parameter 'created_at_max' is missing.")
+      case Some(value) => params += "created_at_max" -> value
+    }
 
     params.toMap
     
