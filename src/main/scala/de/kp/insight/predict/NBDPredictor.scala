@@ -24,7 +24,7 @@ import org.apache.spark.rdd.RDD
 import de.kp.spark.core.Names
 import de.kp.spark.core.model._
 
-import de.kp.insight.RequestContext
+import de.kp.insight._
 import de.kp.insight.model._
 
 import de.kp.insight.math._
@@ -224,8 +224,8 @@ class NBDPredictor(ctx:RequestContext,params:Map[String,String]) extends BasePre
  
   private def query(params:Map[String,String]):String = {
     
-    val created_at_min = unformatted(params("created_at_min"))
-    val created_at_max = unformatted(params("created_at_max"))
+    val created_at_min = unformatted(params("created_at_min"),DateUtil.DEFAULT)
+    val created_at_max = unformatted(params("created_at_max"),DateUtil.DEFAULT)
             
     val filters = Buffer.empty[FilterBuilder]
     filters += FilterBuilders.rangeFilter("time").from(created_at_min).to(created_at_max)

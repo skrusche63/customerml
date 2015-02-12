@@ -55,7 +55,12 @@ class ShopifyClient(configuration:StoreConfig) {
    *************************************************************************/
   
   def getCustomers(params:Map[String,String]):List[ShopifyCustomer] = {
-    getResponse("customers.json", params, null, HttpMethod.GET).customers
+    
+    val accepted = List("page","limit")
+    val req_params = params.filter(kv => accepted.contains(kv._1))
+    
+    getResponse("customers.json", req_params, null, HttpMethod.GET).customers
+  
   }
   
   /**
@@ -63,7 +68,11 @@ class ShopifyClient(configuration:StoreConfig) {
    * the total number of customers
    */
   def getCustomersCount(params:Map[String,String]):Int = {
-    getResponse("customers/count.json", params, null, HttpMethod.GET).count
+    
+    val accepted = List("page","limit")
+    val req_params = params.filter(kv => accepted.contains(kv._1))
+    
+    getResponse("customers/count.json", req_params, null, HttpMethod.GET).count
     
   }
 
@@ -81,7 +90,12 @@ class ShopifyClient(configuration:StoreConfig) {
    * from a certain Shopify store
    */
   def getProducts(params:Map[String,String]):List[ShopifyProduct] = {
-    getResponse("products.json", params, null, HttpMethod.GET).products
+    
+    val accepted = List("page","limit")
+    val req_params = params.filter(kv => accepted.contains(kv._1))
+    
+    getResponse("products.json", req_params, null, HttpMethod.GET).products
+
   }
   
   /**
@@ -89,7 +103,11 @@ class ShopifyClient(configuration:StoreConfig) {
    * the total number of products
    */
   def getProductsCount(params:Map[String,String]):Int = {
-    getResponse("products/count.json", params, null, HttpMethod.GET).count
+    
+    val accepted = List("page","limit")
+    val req_params = params.filter(kv => accepted.contains(kv._1))
+    
+    getResponse("products/count.json", req_params, null, HttpMethod.GET).count
     
   }
  
@@ -134,23 +152,21 @@ class ShopifyClient(configuration:StoreConfig) {
    * from a certain Shopify store
    */
   def getOrders(params:Map[String,String]):List[ShopifyOrder] = {
-    getResponse("orders.json", params, null, HttpMethod.GET).orders
+     
+    val accepted = List("page","limit","financial_status","status","created_at_min","created_at_max")
+    val req_params = params.filter(kv => accepted.contains(kv._1))
+    
+    getResponse("orders.json", req_params, null, HttpMethod.GET).orders
+
   }
   
   def getOrdersCount(params:Map[String,String]):Int = {
-    getResponse("orders/count.json", params, null, HttpMethod.GET).count
+     
+    val accepted = List("page","limit","financial_status","status","created_at_min","created_at_max")
+    val req_params = params.filter(kv => accepted.contains(kv._1))
     
-  }
-  
-  /**************************************************************************
-   * 
-   *                        COLLECTION SUPPORT
-   * 
-   *************************************************************************/
- 
-  def createCollection(params:Map[String,String],collection:String):ShopifyCollection = {
-    getResponse("custom_collections.json", params, null, HttpMethod.POST).custom_collection
-   
+    getResponse("orders/count.json", req_params, null, HttpMethod.GET).count
+    
   }
 
   private def getResponse(resourcePath:String,params:Map[String,String],body:String,method:String):ShopifyResponse = {

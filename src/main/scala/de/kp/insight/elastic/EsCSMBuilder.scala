@@ -70,7 +70,7 @@ class EsCSMBuilder {
 
                 /* signup_date */
                 .startObject("signup_date")
-                   .field("type", "string")
+                   .field("type", "long")
                 .endObject()
 
                 /* last_sync */

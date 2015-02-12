@@ -1,4 +1,4 @@
-package de.kp.insight.woo
+package de.kp.insight.big
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Shopify-Insight project
@@ -17,22 +17,20 @@ package de.kp.insight.woo
  * 
  * If not, see <http://www.gnu.org/licenses/>.
  */
+
 import de.kp.spark.core.Names
 import de.kp.spark.core.model._
 
-import de.kp.insight.RequestContext
+import de.kp.insight._
 import de.kp.insight.model._
 
-import org.joda.time.format.DateTimeFormat
 import scala.collection.JavaConversions._
 
-class WooMapper(ctx:RequestContext) {
+class BigMapper(ctx:RequestContext) {
 
-  /**
-   * A public method to extract those fields from a WooCommerce
-   * customer that describes a 'Customer'
-   */
-  def extractCustomer(site:String,customer:WooCustomer):Customer = {
+  private val shopContext = new BigContext(ctx)
+
+  def extractCustomer(site:String,customer:BigCustomer):Customer = {
     /*
      * The unique user identifier is retrieved from the
      * customer object and there from the 'id' field
@@ -44,7 +42,7 @@ class WooMapper(ctx:RequestContext) {
     val firstName = customer.first_name
     val lastName  = customer.last_name
     
-    val created_at = toTimestamp(customer.created_at)
+    val created_at = DateUtil.unformatted(customer.date_created,DateUtil.BIG_COMMERCE)
     /*
      * Retrieve email data from customer
      */
@@ -60,53 +58,58 @@ class WooMapper(ctx:RequestContext) {
     val state = "not_used"
     
     Customer(site,user,firstName,lastName,created_at,emailAddress,emailVerified,marketing,state)
-        
+
   }
 
-  /**
-   * A public method to extract those fields from a WooCommerce
-   * order that describes an 'Order'
-   */
-  def extractOrder(site:String,order:WooOrder):Order = {
+  def extractOrder(site:String,order:BigOrder):Order = {
     
-    val group = order.id.toString
     /*
-     * The datetime this order was created:
-     * "2014-11-03T13:51:38-05:00"
+     * The unique identifier of a certain order is used
+     * for grouping all the respective items; the order
+     * identifier is an 'Int' and must be converted into
+     * a 'String' representation
      */
-    val created_at = order.created_at
-    val timestamp = toTimestamp(created_at)
+    val group = order.id.toString
 
-    val user = order.customer_id
+    val created_at = order.date_created
+    val timestamp = toTimestamp(created_at)
+    /*
+     * The unique user identifier is retrieved from the
+     * customer object and there from the 'id' field
+     */
+    val user = order.customer_id.toString
     /*
      * The IP address is assigned to an order to
      * determine the location dimension associated
      * with this request
      */
-    val ip_address = order.customer_ip
-    val user_agent = order.customer_user_agent
+    val ip_address = order. ip_address
+    val user_agent = "not_used"
     /*
      * The amount is retrieved from the total price
      * minus the total tax
      */
-    val amount = order.total.toDouble - order.total_tax.toDouble
-    
+    val amount = order.total_ex_tax.toDouble
     /*
      * The total of discounts associated with this order
      */
-    val discounts = order.total_discount.toDouble
+    val discounts = order.discount_amount.toDouble
     /*
-     * The total of shipping costs associated with this order
+     * The shipping costs excluding tax
      */
-    val shipping = order.total_shipping.toDouble
+    val shipping = order.shipping_cost_ex_tax.toDouble
     
+    /*
+     * Retrieve all line items for this order
+     */
+    val lineItems = shopContext.getLineItems(order.id)
     /*
      * Convert all line items of the respective order
      * into 'OrderItem' for indexing
      */
-    val items = order.line_items.map(lineItem => {
+    val items = lineItems.map(lineItem => {
 
-      val item = lineItem.product_id
+      val item = lineItem.product_id.toInt
       /*
        * The product database is accessed to retrieve additional
        * category and vendor data to enrich the OrderItem record
@@ -122,8 +125,8 @@ class WooMapper(ctx:RequestContext) {
       val name = lineItem.name
       val quantity = lineItem.quantity
       
-      val currency = order.currency
-      val price = lineItem.price.toDouble
+      val currency = order.currency_code
+      val price = lineItem.price_ex_tax.toDouble
       
       val sku = lineItem.sku
       
@@ -132,37 +135,28 @@ class WooMapper(ctx:RequestContext) {
     })
 
     Order(site,user,ip_address,user_agent,timestamp,group,amount,discounts,shipping,items)
-        
+    
   }
   
-  /**
-   * A public method to extract those fields from a WooCommerce
-   * product that describes a 'Product'
-   */
-  def extractProduct(site:String,product:WooProduct):Product = {
+  def extractProduct(site:String,product:BigProduct):Product = {
 
     val id = product.id.toString
-    val category = if (product.categories.isEmpty == false) product.categories(0) else "unused"
+    val category = product.product_type
     
-    val name = product.title
-    val vendor = "used"
+    val name = product.name
+    /*
+     * Retrieve brand from Bigcommerce shop
+     */
+    val brand = shopContext.getBrand(product.brand_id)
+    val vendor = brand.name
     
-    val tags = if (product.tags.isEmpty == false) product.tags.mkString(",") else ""
-    val images = product.images.map(x => Image(x.id.toString,x.position,x.src))
+    val tags = product.search_keywords
+    val images = shopContext.getImages(product.id).map(x => Image(x.id.toString,x.sort_order,x.standard_url))
     
     Product(site,id,category,name,vendor,tags,images)
-        
-  }
- 
-  private def toTimestamp(text:String):Long = {
-      
-    //2014-11-03T13:51:38-05:00
-    val pattern = "yyyy-MM-dd'T'HH:mm:ssZ"
-    val formatter = DateTimeFormat.forPattern(pattern)
-      
-    val datetime = formatter.parseDateTime(text)
-    datetime.toDate.getTime
     
-  }  
+  }
+
+  private def toTimestamp(text:String):Long = DateUtil.unformatted(text,DateUtil.BIG_COMMERCE)
 
 }

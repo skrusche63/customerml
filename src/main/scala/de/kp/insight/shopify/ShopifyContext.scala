@@ -64,9 +64,7 @@ class ShopifyContext(ctx:RequestContext) extends ShopContext {
     ctx.putLog("info",String.format("""[UID: %s] Load total of %s customers from Shopify store.""",uid,count.toString))
 
     val pages = Math.ceil(count / 250.0)
-    val excludes = List("limit","page")
-    
-    val shopifyMapper = new ShopifyMapper(ctx)
+    val mapper = new ShopifyMapper(ctx)
      
     var page = 1
     while (page <= pages) {
@@ -74,8 +72,8 @@ class ShopifyContext(ctx:RequestContext) extends ShopContext {
        * STEP #2: Retrieve customers via a paginated approach, retrieving a maximum
        * of 250 customers per request
        */
-      val data = params.filter(kv => excludes.contains(kv._1) == false) ++ Map("limit" -> "250","page" -> page.toString)
-      customers ++= shopifyClient.getCustomers(params).map(customer => shopifyMapper.extractCustomer(apikey,customer))
+      val req_params = params ++ Map("limit" -> "250","page" -> page.toString)
+      customers ++= shopifyClient.getCustomers(req_params).map(customer => mapper.extractCustomer(apikey,customer))
              
       page += 1
               
@@ -109,9 +107,7 @@ class ShopifyContext(ctx:RequestContext) extends ShopContext {
     ctx.putLog("info",String.format("""[UID: %s] Load total of %s products from Shopify store.""",uid,count.toString))
 
     val pages = Math.ceil(count / 250.0)
-    val excludes = List("limit","page")
-    
-    val shopifyMapper = new ShopifyMapper(ctx)
+    val mapper = new ShopifyMapper(ctx)
      
     var page = 1
     while (page <= pages) {
@@ -119,8 +115,8 @@ class ShopifyContext(ctx:RequestContext) extends ShopContext {
        * STEP #2: Retrieve products via a paginated approach, retrieving a maximum
        * of 250 customers per request
        */
-      val data = params.filter(kv => excludes.contains(kv._1) == false) ++ Map("limit" -> "250","page" -> page.toString)
-      products ++= shopifyClient.getProducts(params).map(product => shopifyMapper.extractProduct(apikey,product))
+      val req_params = params ++ Map("limit" -> "250","page" -> page.toString)
+      products ++= shopifyClient.getProducts(req_params).map(product => mapper.extractProduct(apikey,product))
              
       page += 1
               
@@ -157,8 +153,6 @@ class ShopifyContext(ctx:RequestContext) extends ShopContext {
     ctx.putLog("info",String.format("""[UID: %s] Load total of %s orders from Shopify store.""",uid,count.toString))
 
     val pages = Math.ceil(count / 250.0)
-    val excludes = List("limit","page")
-    
     val shopifyMapper = new ShopifyMapper(ctx)
     
     var page = 1
@@ -167,8 +161,8 @@ class ShopifyContext(ctx:RequestContext) extends ShopContext {
        * STEP #2: Retrieve orders via a paginated approach, retrieving a maximum
        * of 250 orders per request
        */
-      val data = order_params.filter(kv => excludes.contains(kv._1) == false) ++ Map("limit" -> "250","page" -> page.toString)
-      orders ++= shopifyClient.getOrders(order_params).map(order => shopifyMapper.extractOrder(apikey,order))
+      val req_params = order_params ++ Map("limit" -> "250","page" -> page.toString)
+      orders ++= shopifyClient.getOrders(req_params).map(order => shopifyMapper.extractOrder(apikey,order))
              
       page += 1
               

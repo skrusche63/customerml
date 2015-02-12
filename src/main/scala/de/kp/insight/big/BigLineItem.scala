@@ -1,4 +1,4 @@
-package de.kp.insight.model
+package de.kp.insight.big
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Shopify-Insight project
@@ -22,36 +22,27 @@ import org.codehaus.jackson.annotate.JsonProperty
 import com.fasterxml.jackson.annotation.{JsonIgnoreProperties, JsonIgnore}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class InsightCustomer(
-
-  @JsonProperty("site")
-  site:String,
+case class BigLineItem(
 
   @JsonProperty("id")
-  id:String,
+  id:Int,
 
-  @JsonProperty("first_name")
-  first_name:String,
+  @JsonProperty("order_id")
+  order_id:Int,
 
-  @JsonProperty("last_name")
-  last_name:String,
+  @JsonProperty("product_id")
+  product_id:Int,
 
-  @JsonProperty("signup_date")
-  signup_date:Long,
+  @JsonProperty("name")
+  name:String,
 
-  @JsonProperty("last_sync")
-  last_sync:Long,
+  @JsonProperty("quantity")
+  quantity:Int,
 
-  @JsonProperty("email")
-  email:String,
+  @JsonProperty("sku")
+  sku:String,
 
-  @JsonProperty("email_verified")
-  email_verified:Boolean,
-
-  @JsonProperty("accepts_marketing")
-  accepts_marketing:Boolean,
-
-  @JsonProperty("operational_state")
-  operational_state:String
-
+  @JsonProperty("price_ex_tax")
+  price_ex_tax:String
+  
 )

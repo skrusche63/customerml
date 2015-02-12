@@ -159,9 +159,9 @@ case class Customer(
   firstName:String,
   lastName:String,
   /*
-   * THe signup date of the customer
+   * The signup date of the customer
    */
-  created_at:String,
+  created_at:Long,
   
   /*
    * The email address of a customer and a flag to indicate,
@@ -291,7 +291,7 @@ case class OrderItem(
   /*
    * Price of the item 
    */
-  price:String = "",
+  price:Double = 0.0,
   /*
    * SKU 
    */

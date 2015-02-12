@@ -27,88 +27,20 @@ case class BigOrder(
   @JsonProperty("id")
   id:Int,
 
-  @JsonProperty("customer_id")
-  customer_id:Int,
-
   @JsonProperty("date_created")
   date_created:String,
 
-  /*
-   * The following parameters are ignored
-   *
-   * @JsonProperty("date_modified")
-   * date_modified:String,
-   *
-   * @JsonProperty("date_shipped")
-   * date_shipped:String,
-   *
-   * @JsonProperty("status_id")
-   * status_id:Int,
-   * 
-   * @JsonProperty("shipping_cost_tax_class_id")
-   * shipping_cost_tax_class_id:Int,
-   * 
-   * @JsonProperty("handling_cost_tax_class_id")
-   * handling_cost_tax_class_id:Int,
-   * 
-   * @JsonProperty("wrapping_cost_tax_class_id")
-   * wrapping_cost_tax_class_id:Int,
-   * 
-   * @JsonProperty("payment_provider_id")
-   * payment_provider_id:Int,
-   * 
-   * @JsonProperty("geoip_country")
-   * geoip_country:String, 
-   *
-   * @JsonProperty("geoip_country_iso2")
-   * geoip_country_iso2:String, 
-   *
-   * @JsonProperty("currency_id")
-   * currency_id:Int,
-   * 
-   * @JsonProperty("default_currency_id")
-   * default_currency_id:Int, 
-   *
-   * @JsonProperty("default_currency_code")
-   * default_currency_code:String,
-   *
-   * @JsonProperty("staff_notes")
-   * staff_notes:String, 
-   *
-   * @JsonProperty("customer_message")
-   * customer_message:String,
-   * 
-   * @JsonProperty("order_is_digital")
-   * order_is_digital:Boolean,
-   * 
-   * @JsonProperty("is_deleted")
-   * is_deleted:Boolean,
-   * 
-   * @JsonProperty("currency_exchange_rate")
-   * currency_exchange_rate:String,
-   * 
-   * @JsonProperty("shipping_address_count")
-   * shipping_address_count:Int,
-   *
-   * @JsonProperty("billing_address")
-   * billing_address:BigBillingAddress,
-   * 
-   * @JsonProperty("shipping_addresses")
-   * shipping_addresses:BigShippingAddresses,
-   * 
-   * @JsonProperty("items_shipped")
-   * items_shipped:Int,
-   * 
-   * @JsonProperty("payment_method")
-   * payment_method:String,
-   *
-   * @JsonProperty("payment_status")
-   * payment_status:String,
-   * 
-   * @JsonProperty("coupons")
-   * coupons:BigCoupons
-   * 
-   */
+  @JsonProperty("ip_address")
+  ip_address:String,
+
+  @JsonProperty("currency_code")
+  currency_code:String,
+
+  @JsonProperty("items_total")
+  items_total:Int,
+  
+  @JsonProperty("customer_id")
+  customer_id:Int,
   
   @JsonProperty("status")
   status:String,
@@ -117,9 +49,6 @@ case class BigOrder(
   
   @JsonProperty("total_ex_tax")
   total_ex_tax:String,
-
-//  @JsonProperty("total_inc_tax")
-//  total_inc_tax:String,
 
   /***** TOTAL TAX *****/
 
@@ -131,9 +60,6 @@ case class BigOrder(
   @JsonProperty("subtotal_ex_tax")
   subtotal_ex_tax:String,
 
-//  @JsonProperty("subtotal_inc_tax")
-//  subtotal_inc_tax:String,
-
   @JsonProperty("subtotal_tax")
   subtotal_tax:String,
 
@@ -143,16 +69,6 @@ case class BigOrder(
    * Shipping costs are taken into account, excluding any
    * taxes associated with shipping; 'tax' is considered
    * as aggregated value 'total_tax'
-   * 
-   *
-   * @JsonProperty("base_shipping_cost")
-   * base_shipping_cost:String,
-   *
-   * @JsonProperty("shipping_cost_inc_tax")
-   * shipping_cost_inc_tax:String, 
-   *
-   * @JsonProperty("shipping_cost_tax")
-   * shipping_cost_tax:String,
    * 
    */
   @JsonProperty("shipping_cost_ex_tax")
@@ -165,16 +81,6 @@ case class BigOrder(
    * taxes associated with handling; 'tax' is considered
    * as aggregated value 'total_tax'
    * 
-   *
-   * @JsonProperty("base_handling_cost")
-   * base_handling_cost:String,
-   *
-   * @JsonProperty("handling_cost_inc_tax")
-   * handling_cost_inc_tax:String,
-   *
-   * @JsonProperty("handling_cost_tax")
-   * handling_cost_tax:String,
-   * 
    */
   @JsonProperty("handling_cost_ex_tax")
   handling_cost_ex_tax:String,
@@ -186,26 +92,10 @@ case class BigOrder(
    * those costs into account, ecluding any associated taxes.
    * 'tax' is considered as aggregated value 'total_tax'
    * 
-   * 
-   * @JsonProperty("base_wrapping_cost")
-   * base_wrapping_cost:String,
-   *
-   * @JsonProperty("wrapping_cost_inc_tax")
-   * wrapping_cost_inc_tax:String,
-   *
-   * @JsonProperty("wrapping_cost_tax")
-   * wrapping_cost_tax:String,
-   * 
    */
 
   @JsonProperty("wrapping_cost_ex_tax")
   wrapping_cost_ex_tax:String,
-
-  @JsonProperty("items_total")
-  items_total:Int,
-
-//  @JsonProperty("refunded_amount")
-//  refunded_amount:String,
 
   @JsonProperty("store_credit_amount")
   store_credit_amount:String,
@@ -213,18 +103,10 @@ case class BigOrder(
   @JsonProperty("gift_certificate_amount")
   gift_certificate_amount:String,
 
-  @JsonProperty("ip_address")
-  ip_address:String,
-
-  @JsonProperty("currency_code")
-  currency_code:String,
-
   @JsonProperty("discount_amount")
   discount_amount:String,
 
   @JsonProperty("coupon_discount")
-  coupon_discount:String,
-
-  @JsonProperty("products")
-  products:BigReference
+  coupon_discount:String
+  
 )

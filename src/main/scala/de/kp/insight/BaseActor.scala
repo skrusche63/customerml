@@ -27,13 +27,8 @@ abstract class BaseActor(ctx:RequestContext) extends RootActor(Configuration) {
   protected val sc = ctx.sparkContext
   protected val sqlc = ctx.sqlCtx
   
-  protected def unformatted(date:String):Long = {
-
-    //2008-12-31 03:00
-    val pattern = "yyyy-MM-dd HH:mm"
-    val formatter = DateTimeFormat.forPattern(pattern)
- 
-    formatter.parseMillis(date)
-    
-  }
+  protected def formatted(time:Long,category:String):String = DateUtil.formatted(time,category)
+  
+  protected def unformatted(date:String,category:String):Long = DateUtil.unformatted(date,category)
+  
 }

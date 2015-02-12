@@ -41,6 +41,23 @@ object Configuration extends CoreConf {
     (duration,retries,timeout)
     
   }
+   
+  def heartbeat:(Int,Int) = {
+  
+    val cfg = config.getConfig("actor")
+    
+    val heartbeat = cfg.getInt("heartbeat")
+    val timeout = cfg.getInt("timeout")
+    
+    (heartbeat,timeout)
+    
+  }
+  
+  /**************************************************************************
+   * 
+   * COMMON ACCESS LAYER
+   * 
+   *************************************************************************/
   
   override def cassandra:Map[String,String] = null
 
@@ -61,26 +78,6 @@ object Configuration extends CoreConf {
   override def mongo:HConf = null
 
   override def mysql:(String,String,String,String) = null
-   
-  def heartbeat:(Int,Int) = {
-  
-    val cfg = config.getConfig("actor")
-    
-    val heartbeat = cfg.getInt("heartbeat")
-    val timeout = cfg.getInt("timeout")
-    
-    (heartbeat,timeout)
-    
-  }
-
-  def cache():Int = {
-  
-    val cfg = config.getConfig("cache")
-    val size = cfg.getInt("size")
-    
-    size
-    
-  }
   
   def geoip:String = {
   
@@ -104,15 +101,30 @@ object Configuration extends CoreConf {
     
   }
 
-  override def rest():(String,Int) = {
-      
-    val cfg = config.getConfig("rest")
-      
-    val host = cfg.getString("host")
-    val port = cfg.getInt("port")
-
-    (host,port)
+  override def rest():(String,Int) = null
+  
+  /**************************************************************************
+   * 
+   * COMMON SHOP LAYER
+   * 
+   *************************************************************************/
+  
+  def bigcommerce():Map[String,String] = {
     
+    val cfg = config.getConfig("bigcommerce")
+    
+    val client_id = cfg.getString("client_id")
+    val client_secret = cfg.getString("client_secret")
+    
+    val callback_url = cfg.getString("callback_url")
+    
+    Map(
+      "client_id" -> client_id,
+      "client_secret" -> client_secret,
+      
+      "callback_url" -> callback_url
+    )
+        
   }
   
   def magento():String = {

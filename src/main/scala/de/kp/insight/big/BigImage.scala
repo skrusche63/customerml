@@ -37,5 +37,9 @@ case class BigImage(
   standard_url:String,
 
   @JsonProperty("tiny_url")
-  tiny_url:String
+  tiny_url:String,
+  
+  @JsonProperty("sort_order")
+  sort_order:Int
+  
 )

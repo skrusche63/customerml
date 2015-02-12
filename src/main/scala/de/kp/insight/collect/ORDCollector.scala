@@ -90,8 +90,8 @@ class ORDCollector(ctx:RequestContext,params:Map[String,String]) extends BaseAct
      * Note, that we must index the time period as timestamps
      * as these parameters are used to filter orders later on
      */
-    val created_at_min = unformatted(params("created_at_min"))
-    val created_at_max = unformatted(params("created_at_max"))
+    val created_at_min = unformatted(params("created_at_min"),shop)
+    val created_at_max = unformatted(params("created_at_max"),shop)
     
     val builder = XContentFactory.jsonBuilder()
 	builder.startObject()

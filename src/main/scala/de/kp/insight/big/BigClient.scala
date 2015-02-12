@@ -24,19 +24,15 @@ import org.slf4j.LoggerFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
-class BigClient(val key:String,val secret:String) {
+import scala.collection.mutable.Buffer
+
+class BigClient(val key:String,val token:String) {
 
   private val LOG = LoggerFactory.getLogger(classOf[BigClient])
   
   private val JSON_MAPPER = new ObjectMapper()  
   JSON_MAPPER.registerModule(DefaultScalaModule)
 
-  /*
-   * Retrieve service & access token, either dynamically
-   * or from file
-   */
-  val service = AuthUtil.loadService
-  val accessToken = AuthUtil.loadAccessToken
   /*
    * Retrieve authentication info from file; note, that the
    * respective data must have been provided by Bigcommerce
@@ -47,13 +43,13 @@ class BigClient(val key:String,val secret:String) {
 
   def getBrands(requestParams:Map[String,String]):List[BigBrand] = {
  
-    val endpoint = ENDPOINT + "brands"
+    val endpoint = ENDPOINT + "brands" + getSimpleUrlParams(requestParams)
 
     val request = new OAuthRequest(Verb.GET, endpoint)
     request.addHeader("accept", "application/json")
 
     request.addHeader("X-Auth-Client", key)
-    request.addHeader("X-Auth-Token", accessToken.getToken())
+    request.addHeader("X-Auth-Token", token)
 		
     val response = request.send()
     if (response.getCode == 200) {
@@ -69,13 +65,13 @@ class BigClient(val key:String,val secret:String) {
 
   def getCustomers(requestParams:Map[String,String]):List[BigCustomer] = {
  
-    val endpoint = ENDPOINT + "customers"
+    val endpoint = ENDPOINT + "customers" + getSimpleUrlParams(requestParams)
 
     val request = new OAuthRequest(Verb.GET, endpoint)
     request.addHeader("accept", "application/json")
 
     request.addHeader("X-Auth-Client", key)
-    request.addHeader("X-Auth-Token", accessToken.getToken())
+    request.addHeader("X-Auth-Token", token)
 		
     val response = request.send()
     if (response.getCode == 200) {
@@ -97,7 +93,7 @@ class BigClient(val key:String,val secret:String) {
     request.addHeader("accept", "application/json")
 
     request.addHeader("X-Auth-Client", key)
-    request.addHeader("X-Auth-Token", accessToken.getToken())
+    request.addHeader("X-Auth-Token", token)
 		
     val response = request.send()
     if (response.getCode == 200) {
@@ -111,15 +107,80 @@ class BigClient(val key:String,val secret:String) {
     
   }
   
-  def getProducts(requestParams:Map[String,String]):List[BigProduct] = {
+  def getBrand(brand:Int):BigBrand = {
  
-    val endpoint = ENDPOINT + "products"
+    val endpoint = ENDPOINT + "brands/" + brand 
 
     val request = new OAuthRequest(Verb.GET, endpoint)
     request.addHeader("accept", "application/json")
 
     request.addHeader("X-Auth-Client", key)
-    request.addHeader("X-Auth-Token", accessToken.getToken())
+    request.addHeader("X-Auth-Token", token)
+		
+    val response = request.send()
+    if (response.getCode == 200) {
+      
+      val body = response.getBody
+      JSON_MAPPER.readValue(body, classOf[BigBrand])
+      
+    } else {
+      throw new Exception("Bad request: " + response.getCode)
+    }
+    
+  }
+  def getLineItems(order:Int,requestParams:Map[String,String]):List[BigLineItem] = {
+ 
+    val endpoint = ENDPOINT + "orders/" + order + "/products" + getSimpleUrlParams(requestParams)
+
+    val request = new OAuthRequest(Verb.GET, endpoint)
+    request.addHeader("accept", "application/json")
+
+    request.addHeader("X-Auth-Client", key)
+    request.addHeader("X-Auth-Token", token)
+		
+    val response = request.send()
+    if (response.getCode == 200) {
+      
+      val body = response.getBody
+      JSON_MAPPER.readValue(body, classOf[List[BigLineItem]])
+      
+    } else {
+      throw new Exception("Bad request: " + response.getCode)
+    }
+    
+  }
+  
+  def getImages(product:Int,requestParams:Map[String,String]):List[BigImage] = {
+ 
+    val endpoint = ENDPOINT + "products/" + product + "/images" + getSimpleUrlParams(requestParams)
+
+    val request = new OAuthRequest(Verb.GET, endpoint)
+    request.addHeader("accept", "application/json")
+
+    request.addHeader("X-Auth-Client", key)
+    request.addHeader("X-Auth-Token", token)
+		
+    val response = request.send()
+    if (response.getCode == 200) {
+      
+      val body = response.getBody
+      JSON_MAPPER.readValue(body, classOf[List[BigImage]])
+      
+    } else {
+      throw new Exception("Bad request: " + response.getCode)
+    }
+    
+  }
+  
+  def getProducts(requestParams:Map[String,String]):List[BigProduct] = {
+ 
+    val endpoint = ENDPOINT + "products" + getSimpleUrlParams(requestParams)
+
+    val request = new OAuthRequest(Verb.GET, endpoint)
+    request.addHeader("accept", "application/json")
+
+    request.addHeader("X-Auth-Client", key)
+    request.addHeader("X-Auth-Token", token)
 		
     val response = request.send()
     if (response.getCode == 200) {
@@ -130,6 +191,49 @@ class BigClient(val key:String,val secret:String) {
     } else {
       throw new Exception("Bad request: " + response.getCode)
     }
+    
+  }
+  
+  private def getOrderUrlParams(params:Map[String,String]):String = {
+    
+    
+    val accepted = List("page","limit","min_date_created","status_id","max_date_created")
+    
+    val sb = Buffer.empty[String]
+    for (kv <- params) {
+       
+      if (accepted.contains(kv._1)) {
+        
+        val value = String.format("""?%s=%s""",kv._1,kv._2)
+        sb += value
+      
+      }
+      
+    }
+    
+    val s = "?" + sb.mkString("&")    
+    java.net.URLEncoder.encode(s, "UTF-8")
+    
+  }
+
+  private def getSimpleUrlParams(params:Map[String,String]):String = {
+    
+    val accepted = List("page","limit")
+    
+    val sb = Buffer.empty[String]
+    for (kv <- params) {
+       
+      if (accepted.contains(kv._1)) {
+        
+        val value = String.format("""?%s=%s""",kv._1,kv._2)
+        sb += value
+      
+      }
+      
+    }
+    
+    val s = "?" + sb.mkString("&")    
+    java.net.URLEncoder.encode(s, "UTF-8")
     
   }
 

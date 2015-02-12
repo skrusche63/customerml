@@ -89,9 +89,17 @@ class CollectorService extends SparkService {
       case Some(value) => params += "uid" -> value
     }
     
+    val shops = List("bigcommerce","shopify")
     shop.value match {      
       case None => parser.usage("Parameter 'shop' is missing.")
-      case Some(value) => params += "shop" -> value
+      case Some(value) => {
+        
+        if (shops.contains(value) == false)
+          parser.usage("Shop parameter must be one of [bigcommerce, shopify].")
+
+        params += "shop" -> value
+      
+      }
     }
     
     val jobs = List("ALL","CSM","ORD","PRD")
@@ -100,7 +108,7 @@ class CollectorService extends SparkService {
       case None => parser.usage("Parameter 'job' is missing.")
       case Some(value) => {
         
-        if (jobs.contains(job.value.get) == false)
+        if (jobs.contains(value) == false)
           parser.usage("Job parameter must be one of [ALL, CSM, ORD, PRD].")
 
         params += "job" -> value
@@ -185,16 +193,6 @@ class CollectorService extends SparkService {
  
     if (ctx.createIndex("orders","base","ORD") == false)
       throw new Exception("Index creation for 'orders/base' has been stopped due to an internal error.")
-    
-  }
-  
-  private def unformatted(date:String):Long = {
-
-    //2008-12-31 03:00
-    val pattern = "yyyy-MM-dd HH:mm"
-    val formatter = DateTimeFormat.forPattern(pattern)
- 
-    formatter.parseMillis(date)
     
   }
   

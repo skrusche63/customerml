@@ -18,9 +18,6 @@ package de.kp.insight.shopify
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.kp.spark.core.Names
-import de.kp.spark.core.model._
-
 import de.kp.insight.RequestContext
 import de.kp.insight.model._
 
@@ -45,7 +42,7 @@ class ShopifyMapper(ctx:RequestContext) {
     val firstName = customer.first_name
     val lastName  = customer.last_name
     
-    val created_at = customer.created_at
+    val created_at = toTimestamp(customer.created_at)
     /*
      * Retrieve email data from customer
      */
@@ -155,7 +152,7 @@ class ShopifyMapper(ctx:RequestContext) {
       val quantity = lineItem.quantity
       
       val currency = order.currency
-      val price = lineItem.price
+      val price = lineItem.price.toDouble
       
       val sku = lineItem.sku
       
