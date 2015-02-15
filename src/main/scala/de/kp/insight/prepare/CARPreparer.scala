@@ -54,46 +54,13 @@ class CARPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
     val name = params(Names.REQ_NAME)
       
     val customer = params("customer").toInt
-    /*
-     * STEP #1: Restrict the purchase orders to those items and attributes
-     * that are relevant for the CAR preparation task; this encloses a
-     * filtering with respect to customer type, if different from '0'
-     */
-    val ctype = sc.broadcast(customer)
+    val filter = new PreparerFilter(ctx,orders)
 
-    val ds = orders.map(x => (x.site,x.user,x.ip_address,x.timestamp,x.items))
-    val filteredDS = (if (customer == 0) {
-      /*
-       * This customer type indicates that ALL customer types
-       * have to be taken into account when computing the item
-       * segmentation 
-       */
-      ds
-          
-    } else {
-      /*
-       * Load the Parquet file that specifies the customer type 
-       * specification and filter those customers that match the 
-       * provided customer type
-       */
-      val parquetCST = readCST(uid).filter(x => x._2 == ctype.value)      
-      ds.map{
-        
-        case(site,user,ip_address,timestamp,items) => 
-          ((site,user),(ip_address,timestamp,items))
-      
-      }.join(parquetCST).map{
-        
-        case((site,user),((ip_address,timestamp,items),rfm_type)) => 
-          (site,user,ip_address,timestamp,items)
-      }
-      
-    })     
+    val filteredDS = filter.filterCAR(customer,uid)
     /*
-     * STEP #2: Build the features associated with the Context-Aware 
-     * recommendation approach from every customer's transaction data 
-     * and join the result with the result of the CPAPreparer to add
-     * the respective rating
+     * Build the features associated with the Context-Aware recommendation 
+     * approach from every customer's transaction data and join the result 
+     * with the result of the CPAPreparer to add the respective rating
      */
     val ratings = filteredDS.groupBy(x => (x._1,x._2)).flatMap(p => {    
 

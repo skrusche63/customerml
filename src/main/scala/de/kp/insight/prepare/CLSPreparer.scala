@@ -144,7 +144,7 @@ class CLSPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
      * Step #5: Load the Parquet file that specifies the customer type 
      * specification and join with the loyalty data computed so far
      */
-    val parquetCST = readCST(uid)      
+    val parquetCST = loadCustomerTypes(uid)      
     val table = ds1.map(x => ((x._1,x._2),(x._3,x._4,x._5))).join(parquetCST).map(x => {
 
       val ((site,user),((amount,timespan,loyalty),rfm_type)) = x

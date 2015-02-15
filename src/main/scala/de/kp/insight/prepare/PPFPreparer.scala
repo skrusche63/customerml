@@ -53,35 +53,9 @@ class PPFPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
     val name = params(Names.REQ_NAME)
       
     val customer = params("customer").toInt
-    /*
-     * STEP #1: Restrict the purchase orders to those items and attributes
-     * that are relevant for the item segmentation task; this encloses a
-     * filtering with respect to customer type, if different from '0'
-     */
-    val ctype = sc.broadcast(customer)
+    val filter = new PreparerFilter(ctx,orders)
 
-    val ds = orders.flatMap(x => x.items.map(v => (x.site,x.user,v.item,v.quantity)))
-    val filteredDS = (if (customer == 0) {
-      /*
-       * This customer type indicates that ALL customer types
-       * have to be taken into account when computing the item
-       * segmentation 
-       */
-      ds
-
-    } else {
-      /*
-       * Load the Parquet file that specifies the customer type specification 
-       * and filter those customers that match the provided customer type
-       */
-      val parquetCST = readCST(uid).filter(x => x._2 == ctype.value)      
-      ds.map(x => ((x._1,x._2),(x._3,x._4))).join(parquetCST).map(x => {
-
-    	val ((site,user),((item,quantity),rfm_type)) = x
-    	(site,user,item,quantity)
-
-      })
-    })       
+    val filteredDS = filter.filterPPF(customer,uid)
     /*
      * STEP #2: Build item customer frequency distribution; note, that
      * we are not interested here, how often a certain customer has

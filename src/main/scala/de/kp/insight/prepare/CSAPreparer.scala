@@ -122,7 +122,7 @@ class CSAPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
        * Load the Parquet file that specifies the customer type specification 
        * and filter those customers that match the provided customer type
        */
-      val parquetCST = readCST(uid).filter(x => x._2 == ctype.value)      
+      val parquetCST = loadCustomerTypes(uid).filter(x => x._2 == ctype.value)      
       ds4.map(x => ((x._1,x._2),(x._3,x._4,x._5))).join(parquetCST).map(x => {
 
     	val ((site,user),((span,freq,sval),rfm_type)) = x

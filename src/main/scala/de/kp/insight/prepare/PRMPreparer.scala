@@ -70,7 +70,7 @@ class PRMPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
        * Load the Parquet file that specifies the customer type specification 
        * and filter those customers that match the provided customer type
        */
-      val parquetCST = readCST(uid).filter(x => x._2 == ctype.value)      
+      val parquetCST = loadCustomerTypes(uid).filter(x => x._2 == ctype.value)      
       ds.map(x => ((x._1,x._2),(x._3,x._4,x._5))).join(parquetCST).map{
 
         case ((site,user),((timestamp,group,item),rfm_type)) =>

@@ -47,35 +47,9 @@ class CPSPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
     val name = params(Names.REQ_NAME)
 
     val customer = params("customer").toInt
-    /*
-     * STEP #1: Restrict the purchase orders to those attributes that
-     * are relevant for the state generation task; this encloses a
-     * filtering with respect to customer type, if different from '0'
-     */
-    val ctype = sc.broadcast(customer)
 
-    val ds = orders.map(x => (x.site,x.user,x.amount,x.timestamp))
-    val filteredDS = (if (customer == 0) {
-      /*
-       * This customer type indicates that ALL customer types
-       * have to be taken into account when computing the item
-       * segmentation 
-       */
-      ds
-
-    } else {
-      /*
-       * Load the Parquet file that specifies the customer type specification 
-       * and filter those customers that match the provided customer type
-       */
-      val parquetCST = readCST(uid).filter(x => x._2 == ctype.value)      
-      ds.map(x => ((x._1,x._2),(x._3,x._4))).join(parquetCST).map(x => {
-
-    	val ((site,user),((amount,timestamp),rfm_type)) = x
-    	(site,user,amount,timestamp)
-
-  	  })
-    })     
+    val filter = new PreparerFilter(ctx,orders)
+    val filteredDS = filter.filterCPS(customer,uid)
 
     /*
      * STEP #1: We calculate the amount ratios and timespans from

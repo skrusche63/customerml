@@ -64,38 +64,11 @@ class CPAPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePrepa
 
     val customer = params("customer").toInt
 
-    /*
-     * STEP #1: Restrict the purchase orders to those items and attributes
-     * that are relevant for the item segmentation task; this encloses a
-     * filtering with respect to customer type, if different from '0'
-     */
-    val ctype = sc.broadcast(customer)
-
-    val ds = orders.flatMap(x => x.items.map(v => (x.site,x.user,v.item,v.quantity,v.category)))
-    val filteredDS = (if (customer == 0) {
-      /*
-       * This customer type indicates that ALL customer types
-       * have to be taken into account when computing the item
-       * segmentation 
-       */
-      ds
-
-    } else {
-    	/*
-    	 * Load the Parquet file that specifies the customer type specification 
-    	 * and filter those customers that match the provided customer type
-    	 */
-    	val parquetCST = readCST(uid).filter(x => x._2 == ctype.value)      
-    	ds.map(x => ((x._1,x._2),(x._3,x._4,x._5))).join(parquetCST).map(x => {
-
-    	  val ((site,user),((item,quantity,category),rfm_type)) = x
-    	  (site,user,item,quantity,category)
-
-    	})
-    })     
+    val filter = new PreparerFilter(ctx,orders)
+    val filteredDS = filter.filterCPA(customer,uid)
 
     /*
-     * STEP #2: Compute the customer product affinity (CPA) using the 
+     * Compute the customer product affinity (CPA) using the 
      * TDIDF algorithm from text analysis
      */
     val table = TFIDF.computeCPA(filteredDS)

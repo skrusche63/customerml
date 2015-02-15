@@ -129,7 +129,7 @@ abstract class BasePreparer(ctx:RequestContext) extends BaseActor(ctx) {
    * customer datasets by an RDD join mechanism to reduce to
    * those records that refer to a certain customer type
    */
-  protected def readCST(uid:String):RDD[((String,String),Int)] = {
+  protected def loadCustomerTypes(uid:String):RDD[((String,String),Int)] = {
 
     val store = String.format("""%s/CST/%s""",ctx.getBase,uid)         
     
