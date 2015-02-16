@@ -21,7 +21,14 @@ import java.net.URL
 
 import com.google.gdata.client.analytics.AnalyticsService
 import com.google.gdata.client.analytics.DataQuery
+
 import com.google.gdata.data.analytics.{DataEntry, DataFeed}
+
+import scala.collection.JavaConversions._
+import scala.collection.mutable.Buffer
+
+case class GARow(columns:Seq[GAColumn])
+case class GAColumn(name:String,category:String,datatype:String,value:String)
 
 class GAClient(params:Map[String,String]) {
   
@@ -41,10 +48,46 @@ class GAClient(params:Map[String,String]) {
    
   }
   
-  def execute() {
+  def execute():Seq[GARow] = {
     
     val dataset = executeQuery()
-    // TODO
+    /*
+     * The data feed returns data that is entirely dependent on the fields specified 
+     * in the request using the dimensions and metrics parameters. 
+     * 
+     * The dimensions parameter defines the primary data keys for an Analytics report, 
+     * such as ga:browser or ga:city. Dimensions are used to segment metrics.
+     * 
+     * For example, while one can ask for the total number of pageviews to a website, 
+     * it might be more interesting to ask for the number of pageviews segmented by 
+     * browser.
+     * 
+     * In this case, one sees the number of pageviews from Firefox, Internet Explorer, 
+     * Chrome, and so forth. When the value of the dimension cannot be determined, 
+     * Analytics uses the special string (not set). 
+     * 
+     */
+    dataset.flatMap(batch => {
+      
+      batch.getEntries.map(entry => {
+
+        val columns = Buffer.empty[GAColumn]
+
+        /* DIMENSIONS */
+        val dimensions = entry.getDimensions
+        if (!dimensions.isEmpty) { 
+          dimensions.map(dimension => GAColumn(dimension.getName,"dimension","string",dimension.getValue)) 
+        }
+        
+        /* METRICS */
+        val metrics = entry.getMetrics
+        metrics.map(metric => GAColumn(metric.getName,"metric",metric.getType,metric.getValue))
+      
+        GARow(columns.toSeq)
+ 
+      })
+
+    })
     
   }
   
@@ -52,20 +95,45 @@ class GAClient(params:Map[String,String]) {
     
     val url = params("url")
     val query = new DataQuery(new URL(url))
+    
     /*
      * All queries have the following 4 parameters 
      */
     val start_date = params("start_date")
     val end_date = params("end_date")
     
+    /*
+     * REQUIRED
+     * 
+     * The aggregated statistics for user activity in a view (profile), 
+     * such as clicks or pageviews. When queried by alone, metrics provide 
+     * the total values for the requested date range, such as overall pageviews 
+     * or total bounces. 
+     * 
+     * However, when requested with dimensions, values are segmented by the dimension. 
+     * For example, ga:pageviews requested with ga:country returns the total pageviews 
+     * per country. 
+     * 
+     * When requesting metrics, keep in mind: All requests require at least one metric.
+     * 
+     * You can supply a maximum of 10 metrics for any query.Not all dimensions and metrics 
+     * can be used together. Consult the Valid Combinations tool to see which combinations 
+     * work together.
+     * 
+     */
     val metrics = params("metrics")
+    query.setMetrics(metrics)
+    /*
+     * REQUIRED
+     * 
+     * The unique table ID used to retrieve the Analytics Report data.
+     */
     val table_id = params("table_id")
+    query.setIds(table_id)
 
     query.setStartDate(start_date)
     query.setEndDate(end_date)
     
-    query.setMetrics(metrics)
-    query.setIds(table_id)
     /*
      * Add optional parameters
      */    
