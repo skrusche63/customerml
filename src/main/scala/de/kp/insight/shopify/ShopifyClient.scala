@@ -47,7 +47,7 @@ class ShopifyClient(configuration:StoreConfig) {
       configuration.getApikey() + ":" + configuration.getPassword() + "@")
       
   val webTarget = client.target(endpoint).path("admin")   
-
+ 
   /**************************************************************************
    * 
    *                        CUSTOMER SUPPORT

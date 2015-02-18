@@ -71,7 +71,7 @@ case class CollectFinished(data:Map[String,String])
  * StartPrepare specifies a message sent to a data preparer actor to indicate 
  * that the preparation sub process has to be started
  */
-case class StartPrepare(data:Map[String,String])
+case class StartPrepare()
 
 case class PrepareFailed(data:Map[String,String])
 
