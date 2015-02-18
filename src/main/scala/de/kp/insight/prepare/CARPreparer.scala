@@ -45,7 +45,7 @@ case class BlockEntry(col:Long,cat:String,value:Double)
  * as these results provide the target (rating) information for the
  * CARPreparer
  */
-class CARPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class CARPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
   
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {

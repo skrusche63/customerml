@@ -54,7 +54,7 @@ import de.kp.insight.RequestContext
  * information for marketing campains and communications with customers.
  *   
  */
-class CPAPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class CPAPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
   
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {

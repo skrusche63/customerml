@@ -34,7 +34,7 @@ import de.kp.insight.RequestContext
  * the purchase history of a certain period of time with respect to
  * these attributes to gain insights into customers' price sensitivity.
  */
-class DPSPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class DPSPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
         
   /*
    * The parameter K is used as an initialization 

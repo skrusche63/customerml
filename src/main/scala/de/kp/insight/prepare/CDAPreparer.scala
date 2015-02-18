@@ -33,7 +33,7 @@ import de.kp.insight.RequestContext
  * this information is used to segment the customer base by this
  * temporal information
  */
-class CDAPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class CDAPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
   
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {

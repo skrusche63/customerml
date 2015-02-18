@@ -40,7 +40,7 @@ import de.kp.insight.RequestContext
  * going through complex mathematics.
  * 
  */
-class RFMPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class RFMPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
         
   /*
    * The parameter K is used as an initialization 

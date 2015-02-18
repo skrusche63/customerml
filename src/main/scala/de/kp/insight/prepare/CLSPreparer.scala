@@ -28,7 +28,7 @@ import de.kp.insight.parquet._
 
 import de.kp.insight.RequestContext
 
-class CLSPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class CLSPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
   
   /*
    * The CLSPreparer uses thresholds for the quantile calculation with

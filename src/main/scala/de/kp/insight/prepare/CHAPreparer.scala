@@ -27,7 +27,7 @@ import de.kp.insight.model._
 import de.kp.insight.preference.TFIDF
 import de.kp.insight.RequestContext
 
-class CHAPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class CHAPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
   
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {

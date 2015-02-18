@@ -34,7 +34,7 @@ import de.kp.insight.RequestContext
  * POMPreparer is responsible for generating the purchase overview
  * metrix (POM) from the purchase orders of a certain period of time
  */
-class POMPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class POMPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
 
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {

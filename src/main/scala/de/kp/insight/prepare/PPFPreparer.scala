@@ -44,7 +44,7 @@ import de.kp.insight.RequestContext
  * frequency, while 11 describes items with the lowest customer and also
  * purchase frequency.
  */
-class PPFPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class PPFPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
   
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {

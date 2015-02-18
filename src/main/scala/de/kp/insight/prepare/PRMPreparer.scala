@@ -33,7 +33,7 @@ import de.kp.insight.RequestContext
  * period of time and a specific customer type for association rule
  * mining with Predictiveworks' Association Analysis engine
  */
-class PRMPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class PRMPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
 
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {

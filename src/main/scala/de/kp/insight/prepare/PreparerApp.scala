@@ -70,10 +70,10 @@ object PreparerApp extends PreparerService("Preparer") {
       /*
        * Start & monitor PreparerActor
        */
-      val actor = system.actorOf(Props(new Handler(ctx,orders)))   
+      val actor = system.actorOf(Props(new Handler(ctx,req_params,orders)))   
       inbox.watch(actor)
     
-      actor ! StartPrepare(req_params)
+      actor ! StartPrepare
 
       val timeout = DurationInt(30).minute
     
@@ -92,7 +92,7 @@ object PreparerApp extends PreparerService("Preparer") {
 
   }
 
-  class Handler(ctx:RequestContext,orders:RDD[InsightOrder]) extends Actor {
+  class Handler(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends Actor {
     
     override def receive = {
     
@@ -101,40 +101,40 @@ object PreparerApp extends PreparerService("Preparer") {
         val start = new java.util.Date().getTime     
         println("Preparer started at " + start)
  
-        val job = msg.data("job")        
+        val job = params("job")        
         val preparer = job match {
           
-          case "CAR" => context.actorOf(Props(new CARPreparer(ctx,orders))) 
+          case "CAR" => context.actorOf(Props(new CARPreparer(ctx,params,orders))) 
           
-          case "CDA" => context.actorOf(Props(new CDAPreparer(ctx,orders))) 
+          case "CDA" => context.actorOf(Props(new CDAPreparer(ctx,params,orders))) 
           
-          case "CHA" => context.actorOf(Props(new CHAPreparer(ctx,orders))) 
+          case "CHA" => context.actorOf(Props(new CHAPreparer(ctx,params,orders))) 
           
-          case "CLS" => context.actorOf(Props(new CLSPreparer(ctx,orders))) 
+          case "CLS" => context.actorOf(Props(new CLSPreparer(ctx,params,orders))) 
           
-          case "CPA" => context.actorOf(Props(new CPAPreparer(ctx,orders))) 
+          case "CPA" => context.actorOf(Props(new CPAPreparer(ctx,params,orders))) 
 
-          case "CPS" => context.actorOf(Props(new CPSPreparer(ctx,orders))) 
+          case "CPS" => context.actorOf(Props(new CPSPreparer(ctx,params,orders))) 
           
-          case "CSA" => context.actorOf(Props(new CSAPreparer(ctx,orders))) 
+          case "CSA" => context.actorOf(Props(new CSAPreparer(ctx,params,orders))) 
           
-          case "DPS" => context.actorOf(Props(new DPSPreparer(ctx,orders))) 
+          case "DPS" => context.actorOf(Props(new DPSPreparer(ctx,params,orders))) 
           
-          case "LOC" => context.actorOf(Props(new LOCPreparer(ctx,orders))) 
+          case "LOC" => context.actorOf(Props(new LOCPreparer(ctx,params,orders))) 
           
-          case "POM" => context.actorOf(Props(new POMPreparer(ctx,orders))) 
+          case "POM" => context.actorOf(Props(new POMPreparer(ctx,params,orders))) 
           
-          case "PPF" => context.actorOf(Props(new PPFPreparer(ctx,orders))) 
+          case "PPF" => context.actorOf(Props(new PPFPreparer(ctx,params,orders))) 
           
-          case "PRM" => context.actorOf(Props(new PRMPreparer(ctx,orders))) 
+          case "PRM" => context.actorOf(Props(new PRMPreparer(ctx,params,orders))) 
 
-          case "RFM" => context.actorOf(Props(new RFMPreparer(ctx,orders))) 
+          case "RFM" => context.actorOf(Props(new RFMPreparer(ctx,params,orders))) 
           
           case _ => throw new Exception("Wrong job descriptor.")
           
         }
         
-        preparer ! StartPrepare(msg.data)
+        preparer ! StartPrepare
        
       }
     

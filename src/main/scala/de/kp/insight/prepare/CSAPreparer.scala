@@ -34,7 +34,7 @@ import de.kp.insight.RequestContext
  * of days from all orders registered so far, and for every 
  * customer that has purchased at least twice
  */
-class CSAPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class CSAPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
  
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {

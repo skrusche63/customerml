@@ -28,7 +28,7 @@ import de.kp.spark.core.Names
 import de.kp.insight._
 import de.kp.insight.model._
 
-abstract class BasePreparer(ctx:RequestContext) extends BaseActor(ctx) {
+abstract class BasePreparer(ctx:RequestContext,params:Map[String,String]) extends BaseActor(ctx) {
   /*
    * The parameter K is used as an initialization 
    * prameter for the QTree semigroup
@@ -42,7 +42,7 @@ abstract class BasePreparer(ctx:RequestContext) extends BaseActor(ctx) {
     
     case msg:StartPrepare => {
 
-      val req_params = msg.data
+      val req_params = params
       
       val uid = req_params(Names.REQ_UID)
       val name = req_params(Names.REQ_NAME)
@@ -57,8 +57,8 @@ abstract class BasePreparer(ctx:RequestContext) extends BaseActor(ctx) {
         val end = new java.util.Date().getTime
         ctx.putLog("info",String.format("""[UID: %s] %s preparation finished at %s.""",uid,name,end.toString))
 
-        val params = Map(Names.REQ_MODEL -> name) ++ req_params
-        context.parent ! PrepareFinished(params)
+        val res_params = Map(Names.REQ_MODEL -> name) ++ req_params
+        context.parent ! PrepareFinished(res_params)
 
       } catch {
         case e:Exception => {
@@ -68,8 +68,8 @@ abstract class BasePreparer(ctx:RequestContext) extends BaseActor(ctx) {
            */
           ctx.putLog("error",String.format("""[UID: %s] %s preparation exception: %s.""",uid,name,e.getMessage))
           
-          val params = Map(Names.REQ_MESSAGE -> e.getMessage) ++ req_params
-          context.parent ! PrepareFailed(params)
+          val res_params = Map(Names.REQ_MESSAGE -> e.getMessage) ++ req_params
+          context.parent ! PrepareFailed(res_params)
         
         }
 

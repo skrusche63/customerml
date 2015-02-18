@@ -39,7 +39,7 @@ import de.kp.insight.RequestContext
  * The LOCPreparer does NOT take specific (RFM) customer types 
  * into account, as we cannot see any necessity to do so.
  */
-class LOCPreparer(ctx:RequestContext,orders:RDD[InsightOrder]) extends BasePreparer(ctx) {
+class LOCPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[InsightOrder]) extends BasePreparer(ctx,params) {
   
   import sqlc.createSchemaRDD
   override def prepare(params:Map[String,String]) {
