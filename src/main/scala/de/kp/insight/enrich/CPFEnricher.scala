@@ -171,21 +171,11 @@ class CPFEnricher(ctx:RequestContext,params:Map[String,String]) extends BaseEnri
      * SchemaRDD. 
      */
     val parquetFile = sqlc.parquetFile(store)
-    val metadata = parquetFile.schema.fields.zipWithIndex
+    val schema = ctx.sparkContext.broadcast(parquetFile.schema)
     
     val rawset = parquetFile.map(row => {
 
-      val values = row.iterator.zipWithIndex.map(x => (x._2,x._1)).toMap
-      val data = metadata.map(entry => {
-      
-        val (field,col) = entry
-      
-        val colname = field.name
-        val colvalu = values(col)
-      
-        (colname,colvalu)
-          
-      }).toMap
+      val data = schema.value.fields.zip(row.toSeq).map{case(field,value) => (field.name,value)}.toMap
 
       val site = data("site").asInstanceOf[String]
       val user = data("user").asInstanceOf[String]
@@ -259,21 +249,11 @@ class CPFEnricher(ctx:RequestContext,params:Map[String,String]) extends BaseEnri
      * SchemaRDD. 
      */
     val parquetFile = sqlc.parquetFile(store)
-    val metadata = parquetFile.schema.fields.zipWithIndex
+    val schema = ctx.sparkContext.broadcast(parquetFile.schema)
     
-    parquetFile.map(record => {
+    parquetFile.map(row => {
 
-      val values = record.iterator.zipWithIndex.map(x => (x._2,x._1)).toMap
-      val data = metadata.map(entry => {
-      
-        val (field,col) = entry
-      
-        val colname = field.name
-        val colvalu = values(col)
-      
-        (colname,colvalu)
-          
-      }).toMap
+      val data = schema.value.fields.zip(row.toSeq).map{case(field,value) => (field.name,value)}.toMap
 
       val last_state = data("last_state").asInstanceOf[String]      
       val step = data("step").asInstanceOf[Int]
