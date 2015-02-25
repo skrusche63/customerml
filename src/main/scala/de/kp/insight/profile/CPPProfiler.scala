@@ -172,21 +172,11 @@ class CPPProfiler(ctx:RequestContext,params:Map[String,String]) extends BaseActo
   private def readCLS(store:String):RDD[((String,String),(Int))] = {
     
     val parquetFile = sqlc.parquetFile(store)
-    val metadata = parquetFile.schema.fields.zipWithIndex
+    val schema = ctx.sparkContext.broadcast(parquetFile.schema)
     
     parquetFile.map(row => {
 
-      val values = row.iterator.zipWithIndex.map(x => (x._2,x._1)).toMap
-      val data = metadata.map(entry => {
-      
-        val (field,col) = entry
-      
-        val colname = field.name
-        val colvalu = values(col)
-      
-        (colname,colvalu)
-          
-      }).toMap
+      val data = schema.value.fields.zip(row.toSeq).map{case(field,value) => (field.name,value)}.toMap
 
       val site = data("site").asInstanceOf[String]
       val user = data("user").asInstanceOf[String]
@@ -211,21 +201,11 @@ class CPPProfiler(ctx:RequestContext,params:Map[String,String]) extends BaseActo
   private def readCPD(store:String):RDD[((String,String),(Int,Double))] = {
    
     val parquetFile = sqlc.parquetFile(store)
-    val metadata = parquetFile.schema.fields.zipWithIndex
+    val schema = ctx.sparkContext.broadcast(parquetFile.schema)
     
     parquetFile.map(row => {
 
-      val values = row.iterator.zipWithIndex.map(x => (x._2,x._1)).toMap
-      val data = metadata.map(entry => {
-      
-        val (field,col) = entry
-      
-        val colname = field.name
-        val colvalu = values(col)
-      
-        (colname,colvalu)
-          
-      }).toMap
+      val data = schema.value.fields.zip(row.toSeq).map{case(field,value) => (field.name,value)}.toMap
 
       val site = data("site").asInstanceOf[String]
       val user = data("user").asInstanceOf[String]
@@ -242,21 +222,11 @@ class CPPProfiler(ctx:RequestContext,params:Map[String,String]) extends BaseActo
   private def readRFM(store:String):RDD[((String,String),(Int,Int,Double,Int,Int,Int,Int))] = {
     
     val parquetFile = sqlc.parquetFile(store)
-    val metadata = parquetFile.schema.fields.zipWithIndex
+    val schema = ctx.sparkContext.broadcast(parquetFile.schema)
     
     parquetFile.map(row => {
 
-      val values = row.iterator.zipWithIndex.map(x => (x._2,x._1)).toMap
-      val data = metadata.map(entry => {
-      
-        val (field,col) = entry
-      
-        val colname = field.name
-        val colvalu = values(col)
-      
-        (colname,colvalu)
-          
-      }).toMap
+      val data = schema.value.fields.zip(row.toSeq).map{case(field,value) => (field.name,value)}.toMap
 
       val site = data("site").asInstanceOf[String]
       val user = data("user").asInstanceOf[String]
