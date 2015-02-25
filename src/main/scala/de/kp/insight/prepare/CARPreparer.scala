@@ -269,21 +269,11 @@ class CARPreparer(ctx:RequestContext,params:Map[String,String],orders:RDD[Insigh
     val store = String.format("""%s/%s/%s/1""",ctx.getBase,name,uid)
     
     val parquetFile = sqlc.parquetFile(store)
-    val metadata = parquetFile.schema.fields.zipWithIndex
+    val schema = ctx.sparkContext.broadcast(parquetFile.schema)
     
     parquetFile.map(row => {
 
-      val values = row.iterator.zipWithIndex.map(x => (x._2,x._1)).toMap
-      val data = metadata.map(entry => {
-      
-        val (field,col) = entry
-      
-        val colname = field.name
-        val colvalu = values(col)
-      
-        (colname,colvalu)
-          
-      }).toMap
+      val data = schema.value.fields.zip(row.toSeq).map{case(field,value) => (field.name,value)}.toMap
 
       val site = data("site").asInstanceOf[String]
       val user = data("user").asInstanceOf[String]
